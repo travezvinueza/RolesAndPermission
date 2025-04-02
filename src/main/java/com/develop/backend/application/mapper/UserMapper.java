@@ -9,5 +9,5 @@ import java.util.Set;
 public interface UserMapper {
     User toUser(UserDto userDto, Set<Role> roles);
 
-    UserDto toUserDto(User user);
+    UserDto toUserDto(User newUser, String accessToken);
 }

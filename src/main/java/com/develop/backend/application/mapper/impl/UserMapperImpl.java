@@ -33,23 +33,22 @@ public class UserMapperImpl implements UserMapper {
                 .build();
     }
 
+
     @Override
-    public UserDto toUserDto(User user) {
-        if (user == null) {
-            return null;
-        }
+    public UserDto toUserDto(User newUser, String accessToken) {
         return UserDto.builder()
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .imageProfile(user.getImageProfile())
-                .creationDate(user.getCreationDate())
-                .roles(user.getRoles().stream()
+                .username(newUser.getUsername())
+                .email(newUser.getEmail())
+                .imageProfile(newUser.getImageProfile())
+                .creationDate(newUser.getCreationDate())
+                .roles(newUser.getRoles().stream()
                         .map(role ->  RoleDto.builder()
                                 .id(role.getId())
                                 .roleName(role.getRoleName())
                                 .build())
                         .toList())
-                .accountLocked(user.isAccountLocked())
+                .accountLocked(newUser.isAccountLocked())
+                .accessToken(accessToken)    // Agregar el Access Token al DTO
                 .build();
     }
 }

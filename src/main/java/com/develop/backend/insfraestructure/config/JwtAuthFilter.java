@@ -2,12 +2,14 @@ package com.develop.backend.insfraestructure.config;
 
 import com.develop.backend.domain.service.OurUserDetailsService;
 import com.develop.backend.insfraestructure.util.JwtGenerator;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +25,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtGenerator jwtGenerator;
     private final OurUserDetailsService ourUserDetailsService;
+    private static final String CONTENT_TYPE = "application/json";
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -33,10 +36,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwtToken)) {
                 authenticateUser(jwtToken, request);
             }
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType(CONTENT_TYPE);
+            response.getWriter().write("{\"message\": \"El token ha expirado\", \"status\": 401}");
+        } catch (AccessDeniedException e) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType(CONTENT_TYPE);
+            response.getWriter().write("{\"message\": \"Acceso denegado: No tienes permisos de administrador\", \"status\": 403}");
         } catch (Exception e) {
-            logger.error("Error procesando el token JWT: {}");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setContentType(CONTENT_TYPE);
+            response.getWriter().write("{\"message\": \"Error interno al procesar el token\", \"status\": 500}");
         }
-        filterChain.doFilter(request, response);
     }
 
     private void authenticateUser(String jwtToken, HttpServletRequest request) {
@@ -46,6 +59,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             UserDetails userDetails = ourUserDetailsService.loadUserByUsername(identifier);
 
             if (jwtGenerator.isTokenValid(jwtToken, userDetails)) {
+                boolean isAdmin = userDetails.getAuthorities().stream()
+                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
+
+                if (!isAdmin) {
+                    throw new AccessDeniedException("Acceso denegado: No tienes permisos de administrador");
+                }
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

@@ -1,8 +1,10 @@
 package com.develop.backend.domain.service.impl;
 
 import com.develop.backend.application.dto.RoleDto;
+import com.develop.backend.domain.entity.Role;
 import com.develop.backend.domain.repository.RoleRepository;
 import com.develop.backend.domain.service.RoleService;
+import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,21 +27,50 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDto save(RoleDto roleDto) {
-        return null;
+        Role existingRole = roleRepository.findByRoleName(roleDto.getRoleName()).orElse(null);
+        if (existingRole != null) {
+            throw new RoleNotFoundException("El rol ya existe");
+        }
+
+        Role role = new Role();
+        role.setRoleName(roleDto.getRoleName());
+        roleRepository.save(role);
+
+        return RoleDto.builder()
+                .id(role.getId())
+                .roleName(roleDto.getRoleName())
+                .build();
     }
 
     @Override
     public RoleDto update(RoleDto roleDto) {
-        return null;
+        Role existingRole = roleRepository.findById(roleDto.getId())
+                .orElseThrow(() -> new RoleNotFoundException("Rol no encontrado"));
+
+        existingRole.setRoleName(roleDto.getRoleName());
+        roleRepository.save(existingRole);
+
+        return RoleDto.builder()
+                .id(existingRole.getId())
+                .roleName(existingRole.getRoleName())
+                .build();
+
     }
 
     @Override
     public List<RoleDto> findAll() {
-        return List.of();
+        return roleRepository.findAll()
+                .stream()
+                .map(role -> RoleDto.builder()
+                        .id(role.getId())
+                        .roleName(role.getRoleName())
+                        .build())
+                .toList();
     }
 
     @Override
     public void delete(Long id) {
-
+        Role role = roleRepository.findById(id).orElseThrow(null);
+        roleRepository.delete(role);
     }
 }

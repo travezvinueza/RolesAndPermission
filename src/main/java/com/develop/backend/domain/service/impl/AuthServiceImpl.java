@@ -1,16 +1,23 @@
 package com.develop.backend.domain.service.impl;
 
-import com.develop.backend.application.dto.JwtResponse;
-import com.develop.backend.application.dto.LoginDto;
+import com.develop.backend.application.dto.request.RefreshTokenReqDto;
+import com.develop.backend.application.dto.response.GenericResponse;
+import com.develop.backend.application.dto.response.JwtResponse;
+import com.develop.backend.application.dto.request.LoginReqDto;
+import com.develop.backend.application.dto.TokenDto;
 import com.develop.backend.application.dto.UserDto;
 import com.develop.backend.application.mapper.UserMapper;
 import com.develop.backend.domain.entity.Role;
+import com.develop.backend.domain.entity.Token;
 import com.develop.backend.domain.entity.User;
 import com.develop.backend.domain.repository.RoleRepository;
+import com.develop.backend.domain.repository.TokenRepository;
 import com.develop.backend.domain.repository.UserRepository;
 import com.develop.backend.domain.service.AuthService;
+import com.develop.backend.domain.service.TokenService;
 import com.develop.backend.insfraestructure.exception.AccountLockedException;
 import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
+import com.develop.backend.insfraestructure.exception.TokenNotFoundException;
 import com.develop.backend.insfraestructure.exception.UserNotFoundException;
 import com.develop.backend.insfraestructure.util.JwtGenerator;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +28,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,20 +40,23 @@ public class AuthServiceImpl implements AuthService {
     private final JwtGenerator jwtGenerator;
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper;
+    private final TokenService tokenService;
+    private final TokenRepository tokenRepository;
 
     @Override
-    public JwtResponse login(LoginDto loginDto) {
+    public JwtResponse login(LoginReqDto loginReqDto) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginDto.getIdentifier(),
-                            loginDto.getPassword())
+                            loginReqDto.getIdentifier(),
+                            loginReqDto.getPassword())
             );
 
             User user = (User) authentication.getPrincipal();
             String accessToken = jwtGenerator.generateToken(user);
+            TokenDto refreshTokenDto = tokenService.generateTokenRefresh(user.getEmail());
 
-            return new JwtResponse(accessToken, user.getImageProfile());
+            return new JwtResponse(accessToken, refreshTokenDto.getRefreshToken());
         } catch (LockedException e) {
             throw new AccountLockedException("La cuenta está bloqueada. Contacta al administrador.");
         } catch (BadCredentialsException e) {
@@ -55,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserDto register(UserDto userDto) {
+    public GenericResponse<UserDto> register(UserDto userDto) {
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
             throw new UserNotFoundException("El usuario ya existe");
         }
@@ -71,18 +81,29 @@ public class AuthServiceImpl implements AuthService {
                 .collect(Collectors.toSet());
 
         User newUser = userMapper.toUser(userDto, roles);
+        User savedUser = userRepository.save(newUser);
 
-        userRepository.save(newUser);
+        String accessToken =  jwtGenerator.generateToken(savedUser);
 
-        return userMapper.toUserDto(newUser);
+        UserDto userMapperUserDto = userMapper.toUserDto(savedUser, accessToken);
 
+        return GenericResponse.success("Usuario registrado exitosamente", userMapperUserDto);
     }
 
     @Override
-    public JwtResponse refreshToken(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-        String refreshToken = jwtGenerator.generateRefreshToken(new HashMap<>(), user);
+    public JwtResponse refreshAccessToken(RefreshTokenReqDto refreshTokenReqDto) {
+        Token token = tokenRepository.findByRefreshToken(refreshTokenReqDto.getRefreshToken())
+                .orElseThrow(() -> new TokenNotFoundException("Refresh Token inválido"));
 
-        return new JwtResponse(refreshToken, user.getImageProfile());
+        if (token.getExpirationDate().isBefore(Instant.now())) {
+            throw new TokenNotFoundException("Refresh Token expirado");
+        }
+
+        User user = token.getUser();
+
+        String newAccessToken = jwtGenerator.generateToken(user);
+
+        return new JwtResponse(newAccessToken, token.getRefreshToken());
     }
+
 }
