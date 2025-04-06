@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +61,17 @@ public class JwtGenerator {
     public  String extractUsername(String token){
         return  extractClaims(token, Claims::getSubject);
     }
+
+    public List<SimpleGrantedAuthority> extractAuthorities(String token) {
+        List<String> roles = extractClaims(token, claims -> claims.get("roles", List.class));
+        if (roles == null) {
+            return List.of(); // Si no hay roles en el token, retorna una lista vacía
+        }
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new) // Convierte cada rol en una autoridad de Spring Security
+                .toList();
+    }
+
 
     private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction){
         return claimsTFunction.apply(Jwts.parser().verifyWith(getKey()).build().parseSignedClaims(token).getPayload());

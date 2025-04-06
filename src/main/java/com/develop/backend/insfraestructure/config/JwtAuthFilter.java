@@ -59,15 +59,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             UserDetails userDetails = ourUserDetailsService.loadUserByUsername(identifier);
 
             if (jwtGenerator.isTokenValid(jwtToken, userDetails)) {
-                boolean isAdmin = userDetails.getAuthorities().stream()
-                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"));
-
-                if (!isAdmin) {
-                    throw new AccessDeniedException("Acceso denegado: No tienes permisos de administrador");
-                }
-
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//                        new UsernamePasswordAuthenticationToken(userDetails, null, jwtGenerator.extractAuthorities(jwtToken));
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }

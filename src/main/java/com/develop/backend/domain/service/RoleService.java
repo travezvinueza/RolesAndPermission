@@ -5,16 +5,16 @@ import com.develop.backend.application.dto.RoleDto;
 import java.util.List;
 
 public interface RoleService {
-    RoleDto findById(Long id);
+    RoleDto findByIdRole(Long id);
 
-    RoleDto findByName(String name);
+    RoleDto findByRoleName(String roleName);
 
-    RoleDto save(RoleDto roleDto);
+    RoleDto saveRole(RoleDto roleDto);
 
-    RoleDto update(RoleDto roleDto);
+    RoleDto updateRole(RoleDto roleDto);
 
-    List<RoleDto> findAll();
+    List<RoleDto> findAllRole();
 
-    void delete(Long id);
+    void deleteRole(Long id);
 
 }

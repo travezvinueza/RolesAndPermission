@@ -15,7 +15,6 @@ import com.develop.backend.domain.repository.TokenRepository;
 import com.develop.backend.domain.repository.UserRepository;
 import com.develop.backend.domain.service.AuthService;
 import com.develop.backend.domain.service.TokenService;
-import com.develop.backend.insfraestructure.exception.AccountLockedException;
 import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
 import com.develop.backend.insfraestructure.exception.TokenNotFoundException;
 import com.develop.backend.insfraestructure.exception.UserNotFoundException;
@@ -23,7 +22,6 @@ import com.develop.backend.insfraestructure.util.JwtGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -57,9 +55,7 @@ public class AuthServiceImpl implements AuthService {
             TokenDto refreshTokenDto = tokenService.generateTokenRefresh(user.getEmail());
 
             return new JwtResponse(accessToken, refreshTokenDto.getRefreshToken());
-        } catch (LockedException e) {
-            throw new AccountLockedException("La cuenta está bloqueada. Contacta al administrador.");
-        } catch (BadCredentialsException e) {
+        }  catch (BadCredentialsException e) {
             throw new UserNotFoundException("Usuario o contraseña incorrectos.");
         }
     }
@@ -70,8 +66,8 @@ public class AuthServiceImpl implements AuthService {
             throw new UserNotFoundException("El usuario ya existe");
         }
 
-        Role defaultRole = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new RoleNotFoundException("Rol predeterminado 'USER' no encontrado"));
+        Role defaultRole = roleRepository.findByRoleName("ROLE_USER")
+                .orElseThrow(() -> new RoleNotFoundException("Rol predeterminado 'ROLE_USER' no encontrado"));
 
         Set<Role> roles = (userDto.getRoles() == null || userDto.getRoles().isEmpty())
                 ? Set.of(defaultRole)

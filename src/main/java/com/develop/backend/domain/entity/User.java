@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Entity
 @Table(name = "users")
@@ -36,9 +37,6 @@ public class User implements UserDetails {
     @Column( name = "creation_date", nullable = false)
     private Timestamp creationDate;
 
-    @Column(name = "account_locked", nullable = false)
-    private boolean accountLocked;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Token> tokens;
 
@@ -53,7 +51,12 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+                .flatMap(role -> Stream.concat(
+                        Stream.of(new SimpleGrantedAuthority(role.getRoleName())),
+                        role.getPermissions() != null ? role.getPermissions().stream()
+                                .map(permission -> new SimpleGrantedAuthority(permission.getPermissionName()))
+                                : Stream.empty()
+                ))
                 .toList();
     }
 
@@ -74,7 +77,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !accountLocked;
+        return true;
     }
 
     @Override

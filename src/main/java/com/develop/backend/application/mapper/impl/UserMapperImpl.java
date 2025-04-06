@@ -22,14 +22,11 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
         return User.builder()
-                .id(userDto.getId())
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .imageProfile(userDto.getImageProfile())
-                .creationDate(userDto.getCreationDate())
                 .roles(roles)
-                .accountLocked(false)
                 .build();
     }
 
@@ -43,11 +40,9 @@ public class UserMapperImpl implements UserMapper {
                 .creationDate(newUser.getCreationDate())
                 .roles(newUser.getRoles().stream()
                         .map(role ->  RoleDto.builder()
-                                .id(role.getId())
                                 .roleName(role.getRoleName())
                                 .build())
                         .toList())
-                .accountLocked(newUser.isAccountLocked())
                 .accessToken(accessToken)    // Agregar el Access Token al DTO
                 .build();
     }

@@ -40,7 +40,6 @@ public class TokenServiceImpl implements TokenService {
         tokenRepository.save(newToken);
 
         return TokenDto.builder()
-                .id(newToken.getId())
                 .refreshToken(newToken.getRefreshToken())
                 .expirationDate(newToken.getExpirationDate())
                 .userId(user.getId())
