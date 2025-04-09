@@ -4,9 +4,7 @@ import com.develop.backend.application.dto.PermissionDto;
 import com.develop.backend.domain.entity.Permission;
 import com.develop.backend.domain.repository.PermissionRepository;
 import com.develop.backend.domain.service.PermissionService;
-import com.develop.backend.insfraestructure.config.CacheConfig;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,11 +21,8 @@ public class PermissionServiceImpl implements PermissionService {
                 .orElseThrow(() -> new RuntimeException("Permission not found"));
     }
 
-    @Cacheable(value = CacheConfig.PERMISSIONS_INFO_CACHE, unless = "#result == null")
     @Override
     public List<PermissionDto> findAllPermission() {
-        System.out.println("Obteniendo permisos desde la BD...");
-
         return permissionRepository.findAll().stream()
                 .map(PermissionDto::fromEntity)
                 .toList();

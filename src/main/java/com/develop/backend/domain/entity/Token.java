@@ -17,7 +17,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "refresh_token", nullable = false, unique = true, length = 999)
+    @Column(name = "refresh_token", nullable = false, unique = true, length = 950)
     private String refreshToken;
 
     @Column(name = "expiration_date", nullable = false)
