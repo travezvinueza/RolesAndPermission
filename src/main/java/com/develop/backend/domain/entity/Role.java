@@ -41,6 +41,7 @@ public class Role implements GrantedAuthority {
         return new ArrayList<>(permissions);
     }
 
+
     public static Role fromDto(RoleDto roleDto, Set<Permission> permissions) {
         return Role.builder()
                 .roleName(roleDto.getRoleName())

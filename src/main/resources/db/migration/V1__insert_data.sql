@@ -8,40 +8,31 @@ INSERT INTO users (username, email, password, image_profile) VALUES
 -- Insertar roles
 INSERT INTO roles (role_name) VALUES
     ('ROLE_ADMIN'),
-    ('ROLE_MANAGER'),
     ('ROLE_USER'),
-    ('ROLE_CLIENT');
+    ('ROLE_CLIENT'),
+    ('ROLE_STUDENT');
 
 -- Insertar permisos
 INSERT INTO permissions (permission_name) VALUES
-    ('ALL_PERMISSIONS'),
-    ('MANAGER_CREATE'),
-    ('MANAGER_READ'),
-    ('MANAGER_DELETE'),
-    ('MANAGER_UPDATE'),
-    ('MANAGER_WRITE'),
-    -- Insertar permisos de PERMISOS
-    ('READ_PERMISSION'),
-    ('WRITE_PERMISSION'),
+    ('CREATE_USER'),
+    ('READ_USER'),
+    ('UPDATE_USER'),
+    ('DELETE_USER'),
+-- Insertar permisos de PERMISSION
     ('CREATE_PERMISSION'),
+    ('READ_PERMISSION'),
     ('UPDATE_PERMISSION'),
-    ('EDIT_PERMISSION'),
-    ('VIEW_PERMISSION'),
     ('DELETE_PERMISSION'),
 -- Insertar permisos de ROLES
-    ('READ_ROLE'),
-    ('WRITE_ROLE'),
     ('CREATE_ROLE'),
-    ('EDIT_ROLE'),
-    ('VIEW_ROLE'),
+    ('READ_ROLE'),
+    ('UPDATE_ROLE'),
     ('DELETE_ROLE'),
- -- Insertar permisos de USUARIOS
-    ('READ_USER'),
-    ('WRITE_USER'),
-    ('CREATE_USER'),
-    ('EDIT_USER'),
-    ('VIEW_USER'),
-    ('DELETE_USER');
+-- Insertar permisos de CATEGORY
+    ('CREATE_CATEGORY'),
+    ('READ_CATEGORY'),
+    ('UPDATE_CATEGORY'),
+    ('DELETE_CATEGORY');
 
     -- Asignar roles a los usuarios
 INSERT INTO user_roles (user_id, role_id) VALUES
@@ -53,14 +44,23 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 -- Relacionar roles con permisos
 INSERT INTO role_permissions (role_id, permission_id) VALUES
     (1, 1), -- ADMIN tiene ALL_PERMISSIONS
-    (2, 2), -- MANAGER tiene MANAGER_CREATE
-    (2, 3), -- MANAGER tiene MANAGER_READ
-    (2, 4), -- MANAGER tiene MANAGER_DELETE
-    (2, 5),
-    (2, 6),
-    (3, 20),
-    (3, 21),
-    (3, 22),
-    (3, 23),
-    (3, 24),
-    (3, 25);
+    (1, 2),
+    (1, 3),
+    (1, 4),
+    (1, 5),
+    (1, 6),
+    (1, 7),
+    (1, 8),
+    (1, 9),
+    (1, 10),
+    (1, 11),
+    (1, 12),
+    (1, 13),
+    (1, 14),
+    (1, 15),
+    (1, 16),
+    (2, 1),
+    (2, 2),
+    (2, 3),
+    (2, 4),
+    (3, 2);

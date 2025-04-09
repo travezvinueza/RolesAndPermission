@@ -20,9 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.http.HttpMethod.GET;
-
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -42,11 +39,9 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll()
-                        .requestMatchers(GET,"/v3/category/list").hasAnyAuthority("ROLE_CLIENT")
-                        .requestMatchers("/v3/permission/**").hasAnyAuthority( "READ_PERMISSION", "WRITE_PERMISSION", "CREATE_PERMISSION", "EDIT_PERMISSION", "VIEW_PERMISSION", "DELETE_PERMISSION")
-                        .requestMatchers("/v3/role/**").hasAnyAuthority("READ_ROLE", "WRITE_ROLE", "CREATE_ROLE", "EDIT_ROLE", "VIEW_ROLE", "DELETE_ROLE")
-                        .requestMatchers("/v3/user/**").hasAnyAuthority( "READ_USER", "WRITE_USER", "CREATE_USER", "EDIT_USER", "VIEW_USER", "DELETE_USER")
-                        .requestMatchers("/v3/role/**", "/v3/permission/**", "/v3/user/**").hasAnyAuthority("ROLE_ADMIN", "ALL_PERMISSIONS")
+                        .requestMatchers("/v3/category/**").hasAnyAuthority("READ_CATEGORY", "CREATE_CATEGORY", "UPDATE_CATEGORY", "DELETE_CATEGORY")
+                        .requestMatchers("/v3/user/**").hasAnyAuthority("READ_USER", "UPDATE_USER", "DELETE_USER")
+                        .requestMatchers("/v3/user/**", "/v3/role/**", "/v3/permission/**", "/v3/category/**").hasAnyAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

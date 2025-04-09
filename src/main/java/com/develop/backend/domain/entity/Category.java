@@ -20,7 +20,6 @@ public class Category {
     private String categoryName;
 
 
-
     public static Category fromDto(CategoryDto categoryDto) {
         return Category.builder()
                 .id(categoryDto.getId())
