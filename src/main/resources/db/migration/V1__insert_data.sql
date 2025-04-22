@@ -1,9 +1,9 @@
 -- Insertar usuarios con contraseñas en texto plano (en producción deben ir cifradas)
-INSERT INTO users (username, email, password, image_profile) VALUES
-    ('Administrador', 'admin@example.com', '$2a$12$K2tWPqfRCIxdSUhBJEMDGOCQDZ/v/koKzFmfXMBBBOLr/YsPinMvm', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
-    ('Manager', 'manager@example.com', '$2a$12$BuWzMP.RM4i855gdbNCYXO6mJKocVeGytnXfaahQjMZdAjagjeJp6', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
-    ('Ricardo', 'ricardo@example.com', '$2a$12$9.YJ8h1nWXZCsQmzP.pdq.qIDAodqSTPLscrIl3bKkLS4FjyUpoBm', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
-    ('Evelin', 'evelin@example.com', '$2a$12$LrJ.ybrJeyf2pvVywdHLcO0bY/GApQ0v.8do.iGEKy6DX3hcLR7fa', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg');
+INSERT INTO users (username, email, password, gender, image_profile) VALUES
+    ('Administrador', 'admin@example.com', '$2a$12$K2tWPqfRCIxdSUhBJEMDGOCQDZ/v/koKzFmfXMBBBOLr/YsPinMvm', 'MASCULINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
+    ('Manager', 'manager@example.com', '$2a$12$BuWzMP.RM4i855gdbNCYXO6mJKocVeGytnXfaahQjMZdAjagjeJp6', 'MASCULINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
+    ('Ricardo', 'ricardo@example.com', '$2a$12$9.YJ8h1nWXZCsQmzP.pdq.qIDAodqSTPLscrIl3bKkLS4FjyUpoBm', 'MASCULINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
+    ('Evelin', 'evelin@example.com', '$2a$12$LrJ.ybrJeyf2pvVywdHLcO0bY/GApQ0v.8do.iGEKy6DX3hcLR7fa', 'FEMENINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg');
 
 -- Insertar roles
 INSERT INTO roles (role_name) VALUES

@@ -4,6 +4,7 @@ import com.develop.backend.application.dto.CategoryDto;
 import com.develop.backend.domain.entity.Category;
 import com.develop.backend.domain.repository.CategoryRepository;
 import com.develop.backend.domain.service.CategoryService;
+import com.develop.backend.insfraestructure.exception.CategoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto createCategory(CategoryDto categoryDto) {
         if(categoryRepository.findByCategoryName(categoryDto.getCategoryName()).isPresent()) {
-            throw new RuntimeException("Category already exists");
+            throw new CategoryNotFoundException("Category already exists");
         }
         Category category = Category.fromDto(categoryDto);
         category = categoryRepository.save(category);
@@ -27,7 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto updateCategory(CategoryDto categoryDto) {
         Category category = categoryRepository.findById(categoryDto.getId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found for update"));
         category.setCategoryName(categoryDto.getCategoryName());
         category = categoryRepository.save(category);
         return CategoryDto.fromEntity(category);
@@ -36,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found for deletion"));
         categoryRepository.delete(category);
     }
 
@@ -50,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
         return CategoryDto.fromEntity(category);
     }
 }

@@ -68,7 +68,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDto updateRole(RoleDto roleDto) {
         Role existingRole = roleRepository.findById(roleDto.getId())
-                .orElseThrow(() -> new RoleNotFoundException("Role not found"));
+                .orElseThrow(() -> new RoleNotFoundException("Role not found for update"));
 
         Set<Permission> permissions = Optional.ofNullable(roleDto.getPermissionId())
                 .orElse(Collections.emptySet())
@@ -89,7 +89,7 @@ public class RoleServiceImpl implements RoleService {
     public void deleteRole(Long id) {
         Role role = roleRepository.findById(id).orElseThrow(null);
         if (role == null) {
-            throw new RoleNotFoundException("Role not found");
+            throw new RoleNotFoundException("Role not found for delete");
         }
         roleRepository.delete(role);
     }

@@ -1,11 +1,11 @@
 package com.develop.backend.insfraestructure.controller;
 
-import com.develop.backend.application.dto.response.GenericResponse;
 import com.develop.backend.application.dto.response.JwtResponse;
 import com.develop.backend.application.dto.request.LoginReqDto;
 import com.develop.backend.application.dto.request.RefreshTokenReqDto;
 import com.develop.backend.application.dto.UserDto;
 import com.develop.backend.domain.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +23,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<GenericResponse<UserDto>> register(@RequestBody UserDto userDto) {
-        GenericResponse<UserDto> response = authService.register(userDto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<UserDto> register(@Valid @RequestBody UserDto userDto) {
+        return new ResponseEntity<>(authService.register(userDto), HttpStatus.CREATED);
     }
 
     @PostMapping("/refresh-token")

@@ -25,25 +25,28 @@ public class UserMapperImpl implements UserMapper {
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
                 .password(passwordEncoder.encode(userDto.getPassword()))
+                .gender(userDto.getGender())
                 .imageProfile(userDto.getImageProfile())
                 .roles(roles)
                 .build();
     }
 
-
     @Override
     public UserDto toUserDto(User newUser, String accessToken) {
         return UserDto.builder()
+                .id(newUser.getId())
                 .username(newUser.getUsername())
                 .email(newUser.getEmail())
                 .imageProfile(newUser.getImageProfile())
+                .gender(newUser.getGender())
                 .creationDate(newUser.getCreationDate())
                 .roles(newUser.getRoles().stream()
                         .map(role ->  RoleDto.builder()
+                                .id(role.getId())
                                 .roleName(role.getRoleName())
                                 .build())
                         .toList())
-                .accessToken(accessToken)    // Agregar el Access Token al DTO
+                .accessToken(accessToken)
                 .build();
     }
 }

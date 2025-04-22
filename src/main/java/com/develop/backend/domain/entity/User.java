@@ -1,5 +1,6 @@
 package com.develop.backend.domain.entity;
 
+import com.develop.backend.domain.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -31,6 +32,9 @@ public class User implements UserDetails {
     private String email;
     @Column(name = "password", nullable = false)
     private String password;
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "gender", nullable = false)
+    private Gender gender;
     @Column(name = "image_profile")
     private String imageProfile;
     @CreationTimestamp

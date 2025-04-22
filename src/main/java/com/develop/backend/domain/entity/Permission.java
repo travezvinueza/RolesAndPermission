@@ -27,6 +27,7 @@ public class Permission implements GrantedAuthority {
 
     public static Permission fromDto(PermissionDto permissionDto) {
         return Permission.builder()
+                .id(permissionDto.getId())
                 .permissionName(permissionDto.getPermissionName())
                 .build();
     }

@@ -1,6 +1,7 @@
 package com.develop.backend.application.dto;
 
 import com.develop.backend.domain.entity.Category;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -10,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 public class CategoryDto {
     private Long id;
+    @NotBlank(message = "name category is required and cannot be blank.")
     private String categoryName;
 
     

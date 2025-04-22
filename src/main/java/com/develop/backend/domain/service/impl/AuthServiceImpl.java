@@ -1,7 +1,6 @@
 package com.develop.backend.domain.service.impl;
 
 import com.develop.backend.application.dto.request.RefreshTokenReqDto;
-import com.develop.backend.application.dto.response.GenericResponse;
 import com.develop.backend.application.dto.response.JwtResponse;
 import com.develop.backend.application.dto.request.LoginReqDto;
 import com.develop.backend.application.dto.TokenDto;
@@ -61,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public GenericResponse<UserDto> register(UserDto userDto) {
+    public UserDto register(UserDto userDto) {
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
             throw new UserNotFoundException("El usuario ya existe");
         }
@@ -81,9 +80,7 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken =  jwtGenerator.generateToken(savedUser);
 
-        UserDto userMapperUserDto = userMapper.toUserDto(savedUser, accessToken);
-
-        return GenericResponse.success("Usuario registrado exitosamente", userMapperUserDto);
+        return userMapper.toUserDto(savedUser, accessToken);
     }
 
     @Override

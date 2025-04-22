@@ -2,6 +2,7 @@ package com.develop.backend.insfraestructure.controller;
 
 import com.develop.backend.application.dto.CategoryDto;
 import com.develop.backend.domain.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/create")
-    public ResponseEntity<CategoryDto> createCategory (@RequestBody CategoryDto categoryDto){
+    public ResponseEntity<CategoryDto> createCategory (@Valid @RequestBody CategoryDto categoryDto){
         CategoryDto createdCategory = categoryService.createCategory(categoryDto);
         return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
     }
