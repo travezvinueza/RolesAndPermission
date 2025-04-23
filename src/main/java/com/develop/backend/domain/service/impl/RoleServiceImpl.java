@@ -6,6 +6,7 @@ import com.develop.backend.domain.entity.Role;
 import com.develop.backend.domain.repository.PermissionRepository;
 import com.develop.backend.domain.repository.RoleRepository;
 import com.develop.backend.domain.service.RoleService;
+import com.develop.backend.insfraestructure.exception.PermissionNotFoundException;
 import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,7 @@ public class RoleServiceImpl implements RoleService {
                 .orElse(Collections.emptySet())
                 .stream()
                 .map(id -> permissionRepository.findById(id).orElseThrow(() ->
-                        new RuntimeException("Permission not found: " + id)))
+                        new PermissionNotFoundException("Permission not found: " + id)))
                 .collect(Collectors.toSet());
 
         Role role = Role.fromDto(roleDto, permissions);
@@ -74,7 +75,7 @@ public class RoleServiceImpl implements RoleService {
                 .orElse(Collections.emptySet())
                 .stream()
                 .map(id -> permissionRepository.findById(id).orElseThrow(() ->
-                        new RuntimeException("Permission not found: " + id)))
+                        new PermissionNotFoundException("Permission not found: " + id)))
                 .collect(Collectors.toSet());
 
         existingRole.setRoleName(roleDto.getRoleName());
