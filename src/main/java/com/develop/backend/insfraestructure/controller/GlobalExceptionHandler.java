@@ -1,10 +1,7 @@
 package com.develop.backend.insfraestructure.controller;
 
 import com.develop.backend.application.dto.ErrorDto;
-import com.develop.backend.insfraestructure.exception.CategoryNotFoundException;
-import com.develop.backend.insfraestructure.exception.PermissionNotFoundException;
-import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
-import com.develop.backend.insfraestructure.exception.UserNotFoundException;
+import com.develop.backend.insfraestructure.exception.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
@@ -60,6 +57,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RoleNotFoundException.class)
     public ResponseEntity<ErrorDto> handleRoleNotFoundException (RoleNotFoundException ex) {
+        ErrorDto errorDto = ErrorDto.builder()
+                .message(ex.getMessage())
+                .error(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(errorDto.getStatus()).body(errorDto);
+    }
+
+    @ExceptionHandler(EmailSendNotFoundException.class)
+    public ResponseEntity<ErrorDto> handleEmailSendNotFoundException (EmailSendNotFoundException ex) {
         ErrorDto errorDto = ErrorDto.builder()
                 .message(ex.getMessage())
                 .error(HttpStatus.NOT_FOUND)
