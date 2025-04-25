@@ -48,17 +48,17 @@ public class AuthController {
         return new ResponseEntity<>(authService.refreshAccessToken(refreshTokenReqDto), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/sendWithAttachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> sendEmailWithAttachment(
-            @RequestParam String to,
-            @RequestParam String subject,
-            @RequestParam String text,
-            @RequestParam MultipartFile filePath) throws MessagingException {
-
-            emailService.sendEmailWithAttachment(to, subject, text, filePath);
-            return ResponseEntity.accepted().body("Correo enviado (procesando en segundo plano)");
-
-    }
+//    @PostMapping(value = "/sendWithAttachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<String> sendEmailWithAttachment(
+//            @RequestParam String to,
+//            @RequestParam String subject,
+//            @RequestParam String text,
+//            @RequestParam MultipartFile filePath) throws MessagingException {
+//
+//            emailService.sendEmailWithAttachment(to, subject, text, filePath);
+//            return ResponseEntity.accepted().body("Correo enviado (procesando en segundo plano)");
+//
+//    }
 
     @PostMapping(value = "/sendWithMultipleAttachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> enviarCorreo(

@@ -39,30 +39,47 @@ public class EmailService {
         }
     }
 
-    @Async("emailExecutor")
-    public void sendEmailWithAttachment(String to, String subject, String text, MultipartFile filePath) throws MessagingException {
-        try {
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+//    @Async("emailExecutor")
+//    public void sendEmailWithAttachment(String to, String subject, String text, MultipartFile filePath) throws MessagingException {
+//        try {
+//            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+//            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+//
+//            helper.setTo(to);
+//            helper.setSubject(subject);
+//            helper.setText(text, true);
+//
+//            if (filePath != null && !filePath.isEmpty()) {
+//                String filename = Objects.requireNonNull(filePath.getOriginalFilename());
+//                ByteArrayResource resource = new ByteArrayResource(filePath.getBytes());
+//                helper.addAttachment(filename, resource);
+//            }
+//
+//            javaMailSender.send(mimeMessage);
+//            log.info("Email con adjunto enviado a: {}", to);
+//
+//        } catch (MessagingException | IOException  e) {
+//            log.error("Error enviando email con adjunto a: {}. Error: {}", to, e.getMessage());
+//            throw new EmailSendNotFoundException("Error enviando email con adjunto a: " + to + ". Error: " + e.getMessage());
+//        }
+//    }
 
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(text, true);
+    @Async
+    public void sendEmailWithAttachment(String to, String subject, String text, byte[] pdfContent, String filename) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
-            if (filePath != null && !filePath.isEmpty()) {
-                String filename = Objects.requireNonNull(filePath.getOriginalFilename());
-                ByteArrayResource resource = new ByteArrayResource(filePath.getBytes());
-                helper.addAttachment(filename, resource);
-            }
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(text, true);
 
-            javaMailSender.send(mimeMessage);
-            log.info("Email con adjunto enviado a: {}", to);
+        ByteArrayResource resource = new ByteArrayResource(pdfContent);
+        helper.addAttachment(filename, resource);
 
-        } catch (MessagingException | IOException  e) {
-            log.error("Error enviando email con adjunto a: {}. Error: {}", to, e.getMessage());
-            throw new EmailSendNotFoundException("Error enviando email con adjunto a: " + to + ". Error: " + e.getMessage());
-        }
+        javaMailSender.send(mimeMessage);
+        log.info("Email con PDF enviado a: {}", to);
     }
+
 
     @Async
     public void sendEmailWithMultipleAttachment(String to, String subject, String text, List<MultipartFile> files) throws MessagingException {
