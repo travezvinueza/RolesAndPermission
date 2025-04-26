@@ -1,3 +1,4 @@
+![rolesAndPermission](https://github.com/user-attachments/assets/94730766-5688-4819-bd3a-fe732deab0eb)
 # JWT SpringSecurity Project
 
 Este proyecto demuestra una API REST segura desarrollada con Spring Boot, que utiliza tokens web JSON (JWT) para la autenticación y la autorización.
