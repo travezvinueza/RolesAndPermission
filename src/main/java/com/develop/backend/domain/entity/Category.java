@@ -4,6 +4,9 @@ import com.develop.backend.application.dto.CategoryDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "categories")
 @Getter
@@ -18,6 +21,9 @@ public class Category {
 
     @Column(name = "category_name", nullable = false, unique = true)
     private String categoryName;
+
+    @OneToMany(mappedBy = "category")
+    private List<Product> products;
 
 
     public static Category fromDto(CategoryDto categoryDto) {
