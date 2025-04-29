@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,6 +21,7 @@ public class OrderDto {
     private OrderState orderState;
     private String description;
     private Long userId;
+    private List<OrderDetailDto> orderDetails;
 
 
     public static OrderDto fromEntity(Order order) {

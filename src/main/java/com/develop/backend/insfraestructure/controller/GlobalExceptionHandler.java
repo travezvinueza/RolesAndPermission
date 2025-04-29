@@ -88,6 +88,28 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorDto.getStatus()).body(errorDto);
     }
 
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<ErrorDto> handleProductNotFoundException (ProductNotFoundException ex) {
+        ErrorDto errorDto = ErrorDto.builder()
+                .message(ex.getMessage())
+                .error(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(errorDto.getStatus()).body(errorDto);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ErrorDto> handleOrderNotFoundException (OrderNotFoundException ex) {
+        ErrorDto errorDto = ErrorDto.builder()
+                .message(ex.getMessage())
+                .error(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(errorDto.getStatus()).body(errorDto);
+    }
+
     @ExceptionHandler
     public ResponseEntity<ErrorDto> handleValidationException(ValidationException exception) {
         ErrorDto errorDTO = ErrorDto.builder()

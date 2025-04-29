@@ -64,3 +64,29 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
     (2, 3),
     (2, 4),
     (3, 2);
+
+-- Insertar algunas categorías
+INSERT INTO categories (category_name)
+VALUES
+('Electrónica'),
+('Ropa'),
+('Hogar');
+
+-- Insertar algunos productos
+INSERT INTO products (product_code, product_name, price, stock, image_product, category_id)
+VALUES
+('PRODUCT-00001', 'Smartphone X', 500.99, 50, 'smartphone.png', 1),
+('PRODUCT-00002', 'Chaqueta de Cuero', 100.99, 20, 'chaqueta.png', 2),
+('PRODUCT-00003', 'Aspiradora', 150.00, 15, 'aspiradora.png', 3);
+
+-- Insertar algunas órdenes
+INSERT INTO orders (order_code, order_state, description, user_id)
+VALUES
+('ORDER-174563', 'PENDING', 'Compra de un Smartphone', 3),
+('ORDER-367641', 'PROCESSING', 'Compra de ropa', 3);
+
+-- Insertar detalles de órdenes
+INSERT INTO order_details (order_id, product_id, quantity, unit_price, total_price)
+VALUES
+(1, 1, 1, 500.99, 500.99),  -- Orden 1: 1 Smartphone
+(2, 2, 2, 100.99, 201.98);  -- Orden 2: 2 Chaquetas

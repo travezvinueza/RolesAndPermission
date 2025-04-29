@@ -40,9 +40,13 @@ public class Order {
 
     public static Order fromDto(OrderDto orderDto) {
         return Order.builder()
+                .id(orderDto.getId())
                 .orderCode(orderDto.getOrderCode())
                 .orderState(orderDto.getOrderState())
                 .description(orderDto.getDescription())
+                .user(User.builder()
+                        .id(orderDto.getUserId())
+                        .build())
                 .build();
     }
 

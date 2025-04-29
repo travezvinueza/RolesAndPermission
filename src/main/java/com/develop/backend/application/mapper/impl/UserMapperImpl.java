@@ -1,5 +1,6 @@
 package com.develop.backend.application.mapper.impl;
 
+import com.develop.backend.application.dto.OrderDto;
 import com.develop.backend.application.dto.RoleDto;
 import com.develop.backend.application.dto.UserDto;
 import com.develop.backend.application.mapper.UserMapper;
@@ -46,6 +47,7 @@ public class UserMapperImpl implements UserMapper {
                                 .roleName(role.getRoleName())
                                 .build())
                         .toList())
+                .orders(newUser.getOrders().stream().map(OrderDto::fromEntity).toList())
                 .accessToken(accessToken)
                 .build();
     }

@@ -1,83 +1,89 @@
 package com.develop.backend.insfraestructure.controller;
 
-import com.develop.backend.domain.service.EmailService;
-import com.develop.backend.domain.service.FacturaService;
+
+import com.develop.backend.domain.service.OrderService;
 import com.develop.backend.domain.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/paypal")
 @RequiredArgsConstructor
 public class PayPalController {
-    private final FacturaService facturaService;
-    private final EmailService emailService;
 
     private final PaypalService paypalService;
+    private final OrderService orderService;
     private static final String SUCCESS_URL  = "http://localhost:8081/api/paypal/success";
     private static final String CANCEL_URL   = "http://localhost:8081/api/paypal/cancel";
 
     @PostMapping("/pay")
-    public String makePayment(@RequestParam double amount){
-
+    public ResponseEntity<String> makePayment(
+            @RequestParam double amount,
+            @RequestParam Long userId,
+            @RequestBody List<Long> orderIds
+    ) {
         try {
-            Payment    payment = paypalService.createPayment(
+            String customData = userId + "," + orderIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(",")); // "userId,orderId1,orderId2,orderId3"
+
+            Payment payment = paypalService.createPayment(
                     amount,
                     "USD",
                     "paypal",
                     "sale",
                     "payment description",
                     CANCEL_URL,
-                    SUCCESS_URL);
-            for(Links links : payment.getLinks()){
-                if(links.getRel().equals("approval_url")){
-                    return "Redirect to: "+links.getHref();
-
+                    SUCCESS_URL,
+                    customData  // 👈 Aquí enviamos datos personalizados
+            );
+            for (Links links : payment.getLinks()) {
+                if (links.getRel().equals("approval_url")) {
+                    return ResponseEntity.ok(links.getHref());
                 }
             }
         } catch (PayPalRESTException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error creando el pago de PayPal: " + e.getMessage(), e);
         }
-        return "Error processing the payment";
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the payment");
+    }
+
+    @GetMapping("exportInvoice")
+    public ResponseEntity<Resource> exportInvoice(@RequestParam Long idUser, @RequestParam Long idOrden){
+        return orderService.exportInvoice(idUser, idOrden);
     }
 
     @GetMapping("/success")
-    public String paymentSuccess(@RequestParam("paymentId") String paymentId,
-                                 @RequestParam("PayerID") String payerId) {
+    public ResponseEntity<Resource> paymentSuccess(
+            @RequestParam("paymentId") String paymentId,
+            @RequestParam("PayerID") String payerId
+    ) {
         try {
             Payment payment = paypalService.execute(paymentId, payerId);
-            if (payment.getState().equals("approved")) {
+            if ("approved".equalsIgnoreCase(payment.getState())) {
 
-                // Simula datos para la factura (puedes reemplazar con datos reales del pago o del usuario)
-                Map<String, Object> parametros = new HashMap<>();
-//                parametros.put("cliente", "Ricardo Travez");
-                parametros.put("monto", payment.getTransactions().getFirst().getAmount().getTotal());
-//                parametros.put("fecha", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                // 👇 Recuperamos los datos que enviamos en "custom"
+                String customData = payment.getTransactions().getFirst().getCustom();
+                String[] parts = customData.split(",");
+                Long userId = Long.parseLong(parts[0]);
+                Long orderId = Long.parseLong(parts[1]);
 
-                // Generar el PDF
-                byte[] facturaPdf = facturaService.generarFactura(parametros);
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_PDF);
-                headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report.pdf");
-
-                // Enviar por email
-                emailService.sendEmailWithAttachment("travezvinueza@gmail.com", "Factura de pago", "Factura de pago", facturaPdf, "report.pdf");
-
-                return "payment is successfully done and email sent";
+                return orderService.exportInvoice(userId, orderId);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error durante el pago o envío de factura: " + e.getMessage(), e);
+            throw new RuntimeException("Error durante el pago o exportación de factura: " + e.getMessage(), e);
         }
 
-        return "payment failed";
+        return ResponseEntity.badRequest().build();
     }
 
 }

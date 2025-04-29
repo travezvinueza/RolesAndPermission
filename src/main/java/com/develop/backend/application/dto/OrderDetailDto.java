@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class OrderDetailDto {
     private Long id;
+    private Long productId;
+    private Long orderId;
     private String orderCode;
     private String description;
     private String productName;
@@ -23,6 +25,8 @@ public class OrderDetailDto {
     public static OrderDetailDto fromEntity(OrderDetail orderDetail) {
         return OrderDetailDto.builder()
                 .id(orderDetail.getId())
+                .productId(orderDetail.getProduct().getId())
+                .orderId(orderDetail.getOrder().getId())
                 .orderCode(orderDetail.getOrder().getOrderCode())
                 .description(orderDetail.getOrder().getDescription())
                 .productName(orderDetail.getProduct().getProductName())
