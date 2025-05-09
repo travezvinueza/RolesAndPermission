@@ -37,7 +37,7 @@ CREATE TABLE role_permissions (
 
 CREATE TABLE tokens (
     id SERIAL PRIMARY KEY,
-    refresh_token VARCHAR(950) NOT NULL UNIQUE,
+    refresh_token TEXT NOT NULL UNIQUE,
     expiration_date TIMESTAMP NOT NULL,
     user_id BIGINT NOT NULL,
     CONSTRAINT fk_token_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

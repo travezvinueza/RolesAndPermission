@@ -46,7 +46,7 @@ public class Product {
                 .price(productDto.getPrice())
                 .stock(productDto.getStock())
                 .imageProduct(productDto.getImageProduct())
+                .category(productDto.getCategoryDto() != null ? Category.fromDto(productDto.getCategoryDto()) : null)
                 .build();
     }
-
 }

@@ -39,15 +39,16 @@ public class OrderDetail {
     public static OrderDetail fromDto(OrderDetailDto orderDetailDto) {
         return OrderDetail.builder()
                 .id(orderDetailDto.getId())
-                .quantity(orderDetailDto.getQuantity())
-                .unitPrice(orderDetailDto.getUnitPrice())
-                .totalPrice(orderDetailDto.getTotalPrice())
                 .order(Order.builder()
                         .id(orderDetailDto.getOrderId())
                         .build())
                 .product(Product.builder()
                         .id(orderDetailDto.getProductId())
                         .build())
+                .quantity(orderDetailDto.getQuantity())
+                .unitPrice(orderDetailDto.getUnitPrice())
+                .totalPrice(orderDetailDto.getTotalPrice())
                 .build();
+
     }
 }

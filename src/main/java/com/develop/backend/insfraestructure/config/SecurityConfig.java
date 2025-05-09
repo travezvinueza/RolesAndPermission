@@ -31,7 +31,7 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST_URL = { "/v3/test/**", "/v3/api-docs/**",
             "/swagger-resources", "/swagger-resources/**", "/configuration/ui",
             "/configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html",
-            "/v3/auth/**", "/upload/**", "/authenticate", "/paypal/**" };
+            "/v3/auth/**", "/upload/**", "/authenticate", "/paypal/**", };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -40,8 +40,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth-> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll()
                         .requestMatchers("/v3/category/**").hasAnyAuthority("READ_CATEGORY", "CREATE_CATEGORY", "UPDATE_CATEGORY", "DELETE_CATEGORY")
+                        .requestMatchers("/v3/product/**").hasAnyAuthority("READ_PRODUCT", "CREATE_PRODUCT", "UPDATE_PRODUCT", "DELETE_PRODUCT")
+                        .requestMatchers("/v3/order/**").hasAnyAuthority("READ_ORDER", "CREATE_ORDER", "UPDATE_ORDER", "DELETE_ORDER")
+                        .requestMatchers("/v3/order-detail/**").hasAnyAuthority("READ_ORDER_DETAIL", "UPDATE_ORDER_DETAIL", "DELETE_ORDER_DETAIL")
                         .requestMatchers("/v3/user/**").hasAnyAuthority("READ_USER", "UPDATE_USER", "DELETE_USER")
-                        .requestMatchers("/v3/user/**", "/v3/role/**", "/v3/permission/**", "/v3/category/**").hasAnyAuthority("ROLE_ADMIN")
+                        .requestMatchers("/v3/user/**", "/v3/role/**", "/v3/permission/**", "/v3/category/**", "/v3/product/**", "/v3/order/**", "/v3/order-detail/**").hasAnyAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

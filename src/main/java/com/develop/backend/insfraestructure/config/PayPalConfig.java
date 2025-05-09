@@ -21,16 +21,16 @@ public class PayPalConfig {
     private String mode;
 
     @Bean
-    public Map<String,String> payPalSDKConfig   (){
+    public Map<String,String> payPalSDKConfig () {
         Map<String,String> config = new HashMap<>();
         config.put("mode",mode);
         return config;
     }
     @Bean
-    public OAuthTokenCredential   oAuthTokenCredential(){
+    public OAuthTokenCredential oAuthTokenCredential(){
         return new OAuthTokenCredential(clientId,clientSecret,payPalSDKConfig());
-
     }
+
     @Bean
     public APIContext apiContext() throws PayPalRESTException {
         APIContext context = new APIContext(oAuthTokenCredential().getAccessToken());

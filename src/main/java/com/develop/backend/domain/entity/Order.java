@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -33,6 +34,9 @@ public class Order {
     @Column(name = "description")
     private String description;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -44,9 +48,6 @@ public class Order {
                 .orderCode(orderDto.getOrderCode())
                 .orderState(orderDto.getOrderState())
                 .description(orderDto.getDescription())
-                .user(User.builder()
-                        .id(orderDto.getUserId())
-                        .build())
                 .build();
     }
 

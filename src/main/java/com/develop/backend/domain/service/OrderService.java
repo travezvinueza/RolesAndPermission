@@ -8,12 +8,14 @@ import java.util.List;
 
 public interface OrderService {
     OrderDto createOrder(OrderDto orderDto);
+    OrderDto findByIdOrder(Long id);
+    OrderDto updateOrder(OrderDto orderDto);
+    List<OrderDto> listOrders(Long userId);
     OrderDto processOrder(Long orderId);
     OrderDto sendOrder(Long orderId);
     OrderDto deliverOrder(Long orderId);
     OrderDto cancelOrder(Long orderId);
     OrderDto reactivateOrder(Long orderId);
-    List<OrderDto> listOrders();
-    OrderDto findById(Long id);
+
     ResponseEntity<Resource> exportInvoice(Long idUser, Long idOrder);
 }

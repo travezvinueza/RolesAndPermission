@@ -4,15 +4,16 @@ import com.develop.backend.application.dto.OrderDetailDto;
 import com.develop.backend.application.dto.OrderDto;
 import com.develop.backend.application.dto.projection.OrderDetailProjection;
 import com.develop.backend.domain.entity.Order;
+import com.develop.backend.domain.entity.User;
 import com.develop.backend.domain.enums.OrderState;
 import com.develop.backend.domain.repository.OrderDetailRepository;
 import com.develop.backend.domain.repository.OrderRepository;
 import com.develop.backend.domain.repository.ProductRepository;
+import com.develop.backend.domain.repository.UserRepository;
 import com.develop.backend.domain.service.EmailService;
 import com.develop.backend.domain.service.OrderDetailService;
 import com.develop.backend.domain.service.OrderService;
 import com.develop.backend.insfraestructure.exception.OrderNotFoundException;
-import com.develop.backend.insfraestructure.exception.ProductNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.*;
@@ -42,28 +43,56 @@ public class OrderServiceImpl implements OrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final EmailService emailService;
     private final OrderDetailService orderDetailService;
+    private final UserRepository userRepository;
+
 
     @Override
     public OrderDto createOrder(OrderDto orderDto) {
+
         Order order = Order.fromDto(orderDto);
+        order.setUser(User.builder().id(orderDto.getUserId()).build());
         order.setOrderCode(generateOrderCode());
         order.setOrderState(OrderState.PENDING);
         Order savedOrder = orderRepository.save(order);
 
-        for (OrderDetailDto detailDto : orderDto.getOrderDetails()) {
-            detailDto.setOrderId(savedOrder.getId());
-            int updatedRows = productRepository.reduceInventory(detailDto.getProductId(), detailDto.getQuantity());
-            if (updatedRows == 0) {
-                throw new ProductNotFoundException("No hay suficiente stock para el producto ID: " + detailDto.getProductId());
-            }
-            this.orderDetailService.saveOrderDetails(detailDto);
+        for(OrderDetailDto orderDetailDto : orderDto.getOrderDetails()) {
+            orderDetailDto.setOrderId(savedOrder.getId());
+            this.orderDetailService.saveOrderDetail(orderDetailDto);
         }
 
-        return OrderDto.fromEntity(savedOrder);
+        Order orderWithDetails = orderRepository.findByIdWithDetails(savedOrder.getId())
+                .orElseThrow(() -> new RuntimeException("Order not found after saving"));
+
+        return OrderDto.fromEntity(orderWithDetails);
     }
 
     private String generateOrderCode() {
         return "ORDER-" + UUID.randomUUID().toString().substring(0, 6);
+    }
+
+    @Override
+    public OrderDto findByIdOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada con ID: " + id));
+
+        return OrderDto.fromEntity(order);
+    }
+
+    @Override
+    public OrderDto updateOrder(OrderDto orderDto) {
+        Order order = orderRepository.findById(orderDto.getId())
+                .orElseThrow(() -> new OrderNotFoundException("Order not found for update"));
+
+        order.setOrderState(orderDto.getOrderState());
+        order.setDescription(orderDto.getDescription());
+        return OrderDto.fromEntity(orderRepository.save(order));
+    }
+
+    @Override
+    public List<OrderDto> listOrders(Long userId) {
+        return orderRepository.findAllOrdersByUserId(userId).stream()
+                .map(OrderDto::fromEntity)
+                .toList();
     }
 
     @Override
@@ -120,20 +149,6 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Override
-    public List<OrderDto> listOrders() {
-        return orderRepository.findAll().stream()
-                .map(OrderDto::fromEntity)
-                .toList();
-    }
-
-    @Override
-    public OrderDto findById(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada con ID: " + id));
-
-        return OrderDto.fromEntity(order);
-    }
 
     @Override
     public ResponseEntity<Resource> exportInvoice(Long idUser, Long idOrder) {
@@ -144,7 +159,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order order = optionalOrder.get();
-        List<OrderDetailProjection> orderDetailProjections = orderDetailRepository.findByOrderId(idOrder);
+        List<OrderDetailProjection> orderDetailProjections = orderDetailRepository.findAllByUserId(idUser);
         BigDecimal total = orderDetailRepository.findTotalPriceByUserId(idUser);
 
         try {

@@ -32,7 +32,21 @@ INSERT INTO permissions (permission_name) VALUES
     ('CREATE_CATEGORY'),
     ('READ_CATEGORY'),
     ('UPDATE_CATEGORY'),
-    ('DELETE_CATEGORY');
+    ('DELETE_CATEGORY'),
+-- Insertar permisos de PRODUCT
+    ('CREATE_PRODUCT'),
+    ('READ_PRODUCT'),
+    ('UPDATE_PRODUCT'),
+    ('DELETE_PRODUCT'),
+-- Insertar permisos de ORDER
+    ('CREATE_ORDER'),
+    ('READ_ORDER'),
+    ('UPDATE_ORDER'),
+    ('DELETE_ORDER'),
+-- Insertar permisos de ORDER_DETAIL
+    ('READ_ORDER_DETAIL'),
+    ('UPDATE_ORDER_DETAIL'),
+    ('DELETE_ORDER_DETAIL');
 
     -- Asignar roles a los usuarios
 INSERT INTO user_roles (user_id, role_id) VALUES
@@ -59,11 +73,17 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
     (1, 14),
     (1, 15),
     (1, 16),
+    (1, 17),
+    (1, 18),
+    (1, 19),
+    (1, 20),
     (2, 1),
     (2, 2),
     (2, 3),
     (2, 4),
-    (3, 2);
+    (3, 2),
+    (3, 21),
+    (3, 22);
 
 -- Insertar algunas categorías
 INSERT INTO categories (category_name)
@@ -75,9 +95,9 @@ VALUES
 -- Insertar algunos productos
 INSERT INTO products (product_code, product_name, price, stock, image_product, category_id)
 VALUES
-('PRODUCT-00001', 'Smartphone X', 500.99, 50, 'smartphone.png', 1),
-('PRODUCT-00002', 'Chaqueta de Cuero', 100.99, 20, 'chaqueta.png', 2),
-('PRODUCT-00003', 'Aspiradora', 150.00, 15, 'aspiradora.png', 3);
+('PRODUCT-1A2B3C', 'Smartphone X', 500.99, 50, 'smartphone.png', 1),
+('PRODUCT-3K4L2R', 'Chaqueta de Cuero', 100.99, 20, 'chaqueta.png', 2),
+('PRODUCT-8F2C1D', 'Aspiradora', 150.00, 15, 'aspiradora.png', 3);
 
 -- Insertar algunas órdenes
 INSERT INTO orders (order_code, order_state, description, user_id)

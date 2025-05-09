@@ -17,7 +17,7 @@ public class ProductDto {
     private BigDecimal price;
     private int stock;
     private String imageProduct;
-    private Long categoryId;
+    private CategoryDto categoryDto;
 
 
     public static ProductDto fromEntity(Product product) {
@@ -28,7 +28,7 @@ public class ProductDto {
                 .price(product.getPrice())
                 .stock(product.getStock())
                 .imageProduct(product.getImageProduct())
-                .categoryId(product.getCategory().getId())
+                .categoryDto(CategoryDto.fromEntity(product.getCategory()))
                 .build();
     }
 }

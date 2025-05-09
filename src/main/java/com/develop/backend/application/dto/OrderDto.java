@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -32,6 +33,11 @@ public class OrderDto {
                 .orderState(order.getOrderState())
                 .description(order.getDescription())
                 .userId(order.getUser().getId())
+                .orderDetails(order.getOrderDetails() != null
+                        ? order.getOrderDetails().stream()
+                        .map(OrderDetailDto::fromEntity)
+                        .toList()
+                        : new ArrayList<>())
                 .build();
     }
 }

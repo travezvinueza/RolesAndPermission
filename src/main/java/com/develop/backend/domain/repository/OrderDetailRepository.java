@@ -23,6 +23,21 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
             "FROM order_details od " +
             "INNER JOIN products p ON od.product_id = p.id " +
             "INNER JOIN orders o ON od.order_id = o.id " +
+            "WHERE o.user_id = :idUser",
+            nativeQuery = true)
+    List<OrderDetailProjection> findAllByUserId(@Param("idUser") Long idUser);
+
+    @Query(value = "SELECT " +
+            "od.id AS id, " +
+            "p.product_code AS productCode, " +
+            "o.description AS description, " +
+            "p.product_name AS productName, " +
+            "od.quantity AS quantity, " +
+            "od.unit_price AS unitPrice, " +
+            "(od.unit_price * od.quantity) AS totalPrice " +
+            "FROM order_details od " +
+            "INNER JOIN products p ON od.product_id = p.id " +
+            "INNER JOIN orders o ON od.order_id = o.id " +
             "WHERE od.order_id = :idOrder",
             nativeQuery = true)
     List<OrderDetailProjection> findByOrderId(@Param("idOrder") Long idOrder);
