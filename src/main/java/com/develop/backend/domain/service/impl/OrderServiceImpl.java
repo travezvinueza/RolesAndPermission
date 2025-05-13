@@ -1,19 +1,19 @@
 package com.develop.backend.domain.service.impl;
 
-import com.develop.backend.application.dto.OrderDetailDto;
 import com.develop.backend.application.dto.OrderDto;
 import com.develop.backend.application.dto.projection.OrderDetailProjection;
 import com.develop.backend.domain.entity.Order;
+import com.develop.backend.domain.entity.OrderDetail;
+import com.develop.backend.domain.entity.Product;
 import com.develop.backend.domain.entity.User;
 import com.develop.backend.domain.enums.OrderState;
 import com.develop.backend.domain.repository.OrderDetailRepository;
 import com.develop.backend.domain.repository.OrderRepository;
 import com.develop.backend.domain.repository.ProductRepository;
-import com.develop.backend.domain.repository.UserRepository;
 import com.develop.backend.domain.service.EmailService;
-import com.develop.backend.domain.service.OrderDetailService;
 import com.develop.backend.domain.service.OrderService;
 import com.develop.backend.insfraestructure.exception.OrderNotFoundException;
+import com.develop.backend.insfraestructure.exception.ProductNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.*;
@@ -42,28 +42,39 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final EmailService emailService;
-    private final OrderDetailService orderDetailService;
-    private final UserRepository userRepository;
 
 
     @Override
     public OrderDto createOrder(OrderDto orderDto) {
-
         Order order = Order.fromDto(orderDto);
         order.setUser(User.builder().id(orderDto.getUserId()).build());
         order.setOrderCode(generateOrderCode());
         order.setOrderState(OrderState.PENDING);
+
+        List<OrderDetail> orderDetails = orderDto.getOrderDetails().stream()
+                .map(dto -> {
+                    Product product = productRepository.findById(dto.getProductId())
+                            .orElseThrow(() -> new RuntimeException("Product not found ID: " + dto.getProductId()));
+
+                    int updatedRows = productRepository.reduceInventory(product.getId(), dto.getQuantity());
+                    if (updatedRows == 0) {
+                        throw new ProductNotFoundException("No hay suficiente stock para el producto ID: " + product.getId());
+                    }
+
+                    return OrderDetail.builder()
+                            .order(order)
+                            .product(product)
+                            .quantity(dto.getQuantity())
+                            .unitPrice(dto.getUnitPrice())
+                            .totalPrice(product.getPrice().multiply(BigDecimal.valueOf(dto.getQuantity())))
+                            .build();
+                }).toList();
+
+        order.setOrderDetails(orderDetails);
+
         Order savedOrder = orderRepository.save(order);
 
-        for(OrderDetailDto orderDetailDto : orderDto.getOrderDetails()) {
-            orderDetailDto.setOrderId(savedOrder.getId());
-            this.orderDetailService.saveOrderDetail(orderDetailDto);
-        }
-
-        Order orderWithDetails = orderRepository.findByIdWithDetails(savedOrder.getId())
-                .orElseThrow(() -> new RuntimeException("Order not found after saving"));
-
-        return OrderDto.fromEntity(orderWithDetails);
+        return OrderDto.fromEntity(savedOrder);
     }
 
     private String generateOrderCode() {

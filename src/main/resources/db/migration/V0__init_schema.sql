@@ -35,6 +35,14 @@ CREATE TABLE role_permissions (
     PRIMARY KEY (role_id, permission_id)
 );
 
+CREATE UNLOGGED TABLE cache (
+    key TEXT PRIMARY KEY,
+    value JSONB,
+    created_at_utc TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_cache_key_include_value ON cache (key) INCLUDE (value);
+
 CREATE TABLE tokens (
     id SERIAL PRIMARY KEY,
     refresh_token TEXT NOT NULL UNIQUE,
