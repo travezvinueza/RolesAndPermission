@@ -12,13 +12,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class OrderDetailDto {
     private Long id;
-
     private Long productId;
-//    private String productName;
-
-    private Long orderId;
-//    private String description;
-
+//    private Long orderId;
     private int quantity;
     private BigDecimal unitPrice;
     private BigDecimal totalPrice;
@@ -28,9 +23,7 @@ public class OrderDetailDto {
         return OrderDetailDto.builder()
                 .id(orderDetail.getId())
                 .productId(orderDetail.getProduct().getId())
-//                .productName(orderDetail.getProduct().getProductName())
-                .orderId(orderDetail.getOrder().getId())
-//                .description(orderDetail.getOrder().getDescription())
+//                .orderId(orderDetail.getOrder().getId())
                 .quantity(orderDetail.getQuantity())
                 .unitPrice(orderDetail.getUnitPrice())
                 .totalPrice(orderDetail.getTotalPrice())

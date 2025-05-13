@@ -1,37 +1,31 @@
 package com.develop.backend.domain.service.impl;
 
 import com.develop.backend.application.dto.ProductDto;
-import com.develop.backend.domain.entity.Cache;
 import com.develop.backend.domain.entity.Category;
 import com.develop.backend.domain.entity.Product;
-import com.develop.backend.domain.repository.CacheRepository;
 import com.develop.backend.domain.repository.CategoryRepository;
 import com.develop.backend.domain.repository.ProductRepository;
+import com.develop.backend.domain.service.GenericCacheService;
 import com.develop.backend.domain.service.ProductService;
 import com.develop.backend.insfraestructure.exception.CategoryNotFoundException;
 import com.develop.backend.insfraestructure.exception.ProductNotFoundException;
-import com.develop.backend.insfraestructure.util.CacheUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import static com.develop.backend.insfraestructure.util.CacheUtils.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
-    private final CacheRepository cacheRepository;
     private final CategoryRepository categoryRepository;
+    private final GenericCacheService cacheService;
+
 
     @Override
     public List<ProductDto> createProduct(List<ProductDto> productDto) {
@@ -59,6 +53,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         List<Product> savedProducts = productRepository.saveAll(productsToSave);
+        cacheService.invalidateCache("product:all");
         return savedProducts.stream().map(ProductDto::fromEntity).toList();
     }
 
@@ -68,7 +63,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto updateProduct(ProductDto productDto) {
-     Product product = productRepository.findById(productDto.getId()).orElseThrow(() -> new ProductNotFoundException("Product not found for update"));
+        Product product = productRepository.findById(productDto.getId()).orElseThrow(() -> new ProductNotFoundException("Product not found for update"));
         product.setProductName(productDto.getProductName());
         product.setPrice(productDto.getPrice());
         product.setStock(productDto.getStock());
@@ -89,13 +84,12 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product updatedProduct = productRepository.save(product);
-        // Actualizamos cache
+        // Actualizar cache específica
         String productKey = "product:" + updatedProduct.getId();
-        String productJson = CacheUtils.serialize(ProductDto.fromEntity(updatedProduct));
-        cacheRepository.save(Cache.builder().key(productKey).value(productJson).build());
+        cacheService.saveToCache(productKey, ProductDto.fromEntity(updatedProduct));
 
-        // Invalida cache general
-        cacheRepository.deleteById("product:all");
+        // Invalidar cache general
+        cacheService.invalidateCache("product:all");
         return ProductDto.fromEntity(updatedProduct);
     }
 
@@ -103,8 +97,8 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long productId) {
         productRepository.findById(productId).ifPresent(product -> {
             productRepository.delete(product);
-            cacheRepository.deleteById("product:" + productId);
-            cacheRepository.deleteById("product:all");
+            cacheService.invalidateCache("product:" + productId);
+            cacheService.invalidateCache("product:all");
         });
     }
 
@@ -112,60 +106,33 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductDto> getAllProducts() {
         String cacheKey = "product:all";
 
-        return cacheRepository.findById(cacheKey)
-                .map(entry -> deserializeList(entry.getValue()))
-                .orElseGet(() -> fetchAllAndCache(cacheKey));
+        List<ProductDto> cachedList = cacheService.getListFromCache(cacheKey, new TypeReference<>() {
+        });
+        if (cachedList != null) return cachedList;
+
+        List<ProductDto> dtoList = productRepository.findAll()
+                .stream()
+                .map(ProductDto::fromEntity)
+                .toList();
+
+        cacheService.saveToCache(cacheKey, dtoList);
+        return dtoList;
     }
 
     @Override
     public ProductDto getProductById(Long productId) {
         String cacheKey = "product:" + productId;
 
-        return cacheRepository.findById(cacheKey)
-                .map(entry -> deserialize(entry.getValue()))
-                .orElseGet(() -> fetchAndCache(productId, cacheKey));
-    }
+        return cacheService.getFromCache(cacheKey, ProductDto.class)
+                .orElseGet(() -> {
+                    Product product = productRepository.findById(productId)
+                            .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
-    private ProductDto fetchAndCache(Long productId, String cacheKey) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+                    ProductDto dto = ProductDto.fromEntity(product);
+                    cacheService.saveToCache(cacheKey, dto);
+                    return dto;
+                });
 
-        ProductDto dto = ProductDto.fromEntity(product);
-        String jsonValue = serialize(dto);
-
-        Cache cache = Cache.builder()
-                .key(cacheKey)
-                .value(jsonValue)
-                .build();
-
-        cacheRepository.save(cache);
-
-        return dto;
-    }
-
-    private List<ProductDto> fetchAllAndCache(String cacheKey) {
-        List<ProductDto> dtoList = productRepository.findAll()
-                .stream()
-                .map(ProductDto::fromEntity)
-                .toList();
-
-        String jsonValue = serialize(dtoList);
-
-        Cache cache = Cache.builder()
-                .key(cacheKey)
-                .value(jsonValue)
-                .build();
-
-        cacheRepository.save(cache);
-
-        return dtoList;
-    }
-
-    @Scheduled(fixedDelay = 3600000)
-    public void cleanOldCache() {
-        Timestamp oneHourAgo = Timestamp.from(Instant.now().minus(1, ChronoUnit.HOURS));
-        cacheRepository.deleteOlderThan(oneHourAgo);
-        log.info("Limpiando caché expirada...");
     }
 
 }
