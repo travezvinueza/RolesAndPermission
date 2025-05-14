@@ -31,7 +31,7 @@ public class SecurityConfig {
     private static final String[] WHITE_LIST_URL = { "/v3/test/**", "/v3/api-docs/**",
             "/swagger-resources", "/swagger-resources/**", "/configuration/ui",
             "/configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html",
-            "/v3/auth/**", "/upload/**", "/authenticate", "/paypal/**", };
+            "/v3/auth/**", "/upload/**", "/authenticate", "/paypal/**", "/v3/cache/**" };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{

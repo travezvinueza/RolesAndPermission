@@ -16,6 +16,4 @@ public interface CacheRepository extends JpaRepository<Cache, String> {
     @Transactional
     @Query("DELETE FROM Cache c WHERE c.createdAtUtc < :cutoff")
     void deleteOlderThan(@Param("cutoff") Timestamp cutoff);
-
 }
-

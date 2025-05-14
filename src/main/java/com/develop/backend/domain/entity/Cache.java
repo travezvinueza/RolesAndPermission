@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Cache {
     @Id
-    @Column(name = "key", nullable = false)
+    @Column(name = "key", columnDefinition = "TEXT", nullable = false)
     private String key;
 
     @Type(JsonType.class)

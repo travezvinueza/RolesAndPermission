@@ -36,7 +36,7 @@ CREATE TABLE role_permissions (
 );
 
 CREATE UNLOGGED TABLE cache (
-    key TEXT PRIMARY KEY,
+    key TEXT PRIMARY KEY NOT NULL,
     value JSONB NOT NULL,
     created_at_utc TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

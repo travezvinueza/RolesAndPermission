@@ -122,8 +122,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getProductById(Long productId) {
         String cacheKey = "product:" + productId;
+        long start = System.currentTimeMillis();
 
-        return cacheService.getFromCache(cacheKey, ProductDto.class)
+        ProductDto result = cacheService.getFromCache(cacheKey, ProductDto.class)
                 .orElseGet(() -> {
                     Product product = productRepository.findById(productId)
                             .orElseThrow(() -> new ProductNotFoundException("Product not found"));
@@ -133,6 +134,10 @@ public class ProductServiceImpl implements ProductService {
                     return dto;
                 });
 
+        long duration = System.currentTimeMillis() - start;
+        log.info("Tiempo total para getProductById({}): {} ms", productId, duration);
+
+        return result;
     }
 
 }

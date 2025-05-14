@@ -15,7 +15,7 @@ public class CacheUtils {
     }
 
     // Serializar cualquier objeto a JSON
-    public static String serialize(Object object) {
+    public static <T> String serialize(T object) {
         if (object == null) return null;
         try {
             return objectMapper.writeValueAsString(object);
