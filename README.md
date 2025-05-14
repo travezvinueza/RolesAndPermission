@@ -13,7 +13,11 @@ Este proyecto demuestra una API REST segura desarrollada con Spring Boot, que ut
 * **Gestión de productos:** Operaciones CRUD básicas para productos (crear, leer, actualizar, eliminar).
 * **Carga de imagenes:** Permite la carga de imágenes en la carpeta `uploads` con formato PNG, JPG y JPEG.
 * **Validación:** Implementa la validación de entrada para las cargas útiles de las solicitudes.
-* 
+* **Excepciones personalizadas:** Maneja excepciones personalizadas para manejar errores de autenticación y autorización.
+* **Documentación API:** Genera documentación de la API en HTML utilizando Springdoc OpenAPI.
+* **Reportes PDF:** Genera reportes en PDF utilizando JasperReports.
+* **Cache:** Utiliza cache de postgres UNLOGGGED para mejorar el rendimiento de las consultas a la base de datos.
+
 ## Technologies
 
 *   **Spring Boot:** The core framework for building the application.

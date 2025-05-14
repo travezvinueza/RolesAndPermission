@@ -52,12 +52,12 @@ CREATE TABLE tokens (
 );
 
 CREATE TABLE categories (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     category_name VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE products (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     product_code VARCHAR(255) NOT NULL UNIQUE,
     product_name VARCHAR(255) NOT NULL UNIQUE,
     price NUMERIC(10,2) NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE products (
 );
 
 CREATE TABLE orders (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     order_code VARCHAR(255) NOT NULL UNIQUE,
     creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     order_state VARCHAR(50),
