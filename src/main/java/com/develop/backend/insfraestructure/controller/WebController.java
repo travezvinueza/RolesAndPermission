@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/paypal")
 public class WebController {
 
-    @GetMapping("/")
-    public String home() {
-        return "payment";
-
-    }
+//    @GetMapping("/")
+//    public String home() {
+//        return "payment";
+//
+//    }
 
 //    @GetMapping("/success")
 //    public String success() {
@@ -21,9 +21,9 @@ public class WebController {
 //    }
 
 
-    @GetMapping("/cancel")
-    public String cancel() {
-        return "payment canceled";
-
-    }
+//    @GetMapping("/cancel")
+//    public String cancel() {
+//        return "payment canceled";
+//
+//    }
 }

@@ -95,6 +95,12 @@ public class PayPalController {
         return ResponseEntity.badRequest().build();
     }
 
+    @GetMapping("/cancel")
+    public ResponseEntity<String> paymentCancel() {
+        return ResponseEntity.ok("El pago fue cancelado por el usuario.");
+    }
+
+
 //    @GetMapping("/payment/cancel")
 //    public String paymentCancel() {
 //        return "paymentCancel";

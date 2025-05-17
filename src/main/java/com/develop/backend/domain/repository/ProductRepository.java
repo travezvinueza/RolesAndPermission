@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByProductName(String productName);
-    Product findTopByOrderByIdDesc();
 
     @Modifying
     @Query("update Product p set p.stock = p.stock - :quantity where p.id = :productId and p.stock >= :quantity")

@@ -154,12 +154,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void restoreStock(Long orderId) {
-        List<OrderDetailProjection> orderDetails = orderDetailRepository.findByOrderId(orderId);
-        for (OrderDetailProjection detail : orderDetails) {
-            productRepository.addStock(detail.getProductId(), detail.getQuantity());
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
+        for (OrderDetail detail : orderDetails) {
+            productRepository.addStock(detail.getProduct().getId(), detail.getQuantity());
         }
     }
-
 
     @Override
     public ResponseEntity<Resource> exportInvoice(Long idUser, Long idOrder) {
@@ -174,8 +173,8 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal total = orderDetailRepository.findTotalPriceByUserId(idUser);
 
         try {
-            File file = ResourceUtils.getFile("classpath:reports.jasper");
-            File imageLogo = ResourceUtils.getFile("classpath:logo.png");
+            File file = ResourceUtils.getFile("classpath:report/reports.jasper");
+            File imageLogo = ResourceUtils.getFile("classpath:report/logo.png");
             JasperReport report = (JasperReport) JRLoader.loadObject(file);
 
             Map<String, Object> parameters = new HashMap<>();
