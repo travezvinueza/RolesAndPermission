@@ -38,9 +38,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     @Override
-    public String uploadFile(MultipartFile file) throws IOException {
+    public String uploadFile(MultipartFile file, String folder) throws IOException {
         if (!file.isEmpty()){
-            Path uploadPath = Paths.get(UPLOAD_FOLDER);
+            Path uploadPath = Paths.get(UPLOAD_FOLDER, folder);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
@@ -48,25 +48,29 @@ public class FileUploadServiceImpl implements FileUploadService {
             String originalFileName = Objects.requireNonNull(file.getOriginalFilename()); // Obtener el nombre original del archivo
             String sanitizedFileName = originalFileName.replaceAll("[^a-zA-Z0-9.]", "_");
             String encodedFileName = URLEncoder.encode(sanitizedFileName, StandardCharsets.UTF_8);
-            Path path = Paths.get(UPLOAD_FOLDER).resolve(encodedFileName);
+            Path path = Paths.get(UPLOAD_FOLDER, folder, encodedFileName);
             Files.write(path, bytes);
-            return baseUrl + encodedFileName;
+            return baseUrl + folder + "/" + encodedFileName;
         }
         return null;
     }
 
     @Override
     public void deleteUpload(String fileUrl) throws IOException {
-        String fileName = extractFileNameFromUrl(fileUrl);
-        Path path = Paths.get(UPLOAD_FOLDER, fileName);
+        String filePath = extractPathFromUrl(fileUrl);
+        Path path = Paths.get(UPLOAD_FOLDER, filePath);
         if (Files.deleteIfExists(path)) {
-            log.info("Archivo eliminado: {}", fileName);
+            log.info("Archivo eliminado: {}", filePath);
         } else {
-            log.warn("No se pudo eliminar el archivo: {}", fileName);
+            log.warn("No se pudo eliminar el archivo: {}", filePath);
         }
     }
 
-    private String extractFileNameFromUrl(String url) {
-        return url.substring(url.lastIndexOf("/") + 1); // Extraer el nombre después del último "/"
+    private String extractPathFromUrl(String url) {
+        int index = url.indexOf("/upload/");
+        if (index == -1) {
+            throw new IllegalArgumentException("URL inválida, no contiene '/upload/': " + url);
+        }
+        return url.substring(index + "/upload/".length());
     }
 }

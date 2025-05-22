@@ -90,9 +90,9 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto updateOrder(OrderDto orderDto) {
-        Order order = orderRepository.findById(orderDto.getId())
-                .orElseThrow(() -> new OrderNotFoundException("Order not found for update"));
+    public OrderDto updateOrder(Long id, OrderDto orderDto) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Orden no encontrada con ID: " + id));
 
         order.setOrderState(orderDto.getOrderState());
         order.setDescription(orderDto.getDescription());
@@ -161,16 +161,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ResponseEntity<Resource> exportInvoice(Long idUser, Long idOrder) {
-        Optional<Order> optionalOrder = orderRepository.findByIdAndUserId(idUser, idOrder);
+    public ResponseEntity<Resource> exportInvoice(Long idUser, List<Long> idOrder) {
+        List<Order> orders = orderRepository.findByIdAndUserId(idUser, idOrder);
 
-        if (optionalOrder.isEmpty()) {
+        if (orders.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        Order order = optionalOrder.get();
-        List<OrderDetailProjection> orderDetailProjections = orderDetailRepository.findAllByUserId(idUser);
-        BigDecimal total = orderDetailRepository.findTotalPriceByUserId(idUser);
+        Order order = orders.getFirst();
+//        List<OrderDetailProjection> orderDetailProjections = orderDetailRepository.findAllByUserId(idUser);
+//        BigDecimal total = orderDetailRepository.findTotalPriceByUserId(idUser);
+
+        List<OrderDetailProjection> orderDetailProjections = orderDetailRepository.findAllByUserIdAndOrderId(idUser, idOrder);
+        BigDecimal total = orderDetailRepository.findTotalPriceByUserIdAndOrderIds(idUser, idOrder);
+
 
         try {
             File file = ResourceUtils.getFile("classpath:report/reports.jasper");

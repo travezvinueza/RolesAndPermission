@@ -47,7 +47,7 @@ public class UserMapperImpl implements UserMapper {
                                 .roleName(role.getRoleName())
                                 .build())
                         .toList())
-                .orders(newUser.getOrders().stream().map(OrderDto::fromEntity).toList())
+//                .orders(newUser.getOrders().stream().map(OrderDto::fromEntity).toList())
                 .accessToken(accessToken)
                 .build();
     }

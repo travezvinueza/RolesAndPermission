@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,12 +36,11 @@ public class PayPalController {
             @RequestBody List<Long> orderIds
     ) {
         try {
-            BigDecimal total = orderDetailRepository.findTotalPriceByUserId(userId);
-
+//            BigDecimal total = orderDetailRepository.findTotalPriceByUserId(userId);
+            BigDecimal total = orderDetailRepository.findTotalPriceByUserIdAndOrderIds(userId, orderIds);
             if (total == null || total.compareTo(BigDecimal.ZERO) <= 0) {
                 return ResponseEntity.ok("No hay ordenes para pagar");
             }
-            String description = "Pago de ordenes";
 
             String customData = userId + "," + orderIds.stream()
                     .map(String::valueOf)
@@ -51,7 +51,7 @@ public class PayPalController {
                     "USD",
                     "paypal",
                     "sale",
-                    description,
+                    "payment description",
                     CANCEL_URL,
                     SUCCESS_URL,
                     customData
@@ -72,7 +72,7 @@ public class PayPalController {
 
 
     @GetMapping("/success")
-    public ResponseEntity<Resource> paymentSuccess(
+    public ResponseEntity<String> paymentSuccess(
             @RequestParam("paymentId") String paymentId,
             @RequestParam("PayerID") String payerId
     ) {
@@ -84,9 +84,15 @@ public class PayPalController {
                 String customData = payment.getTransactions().getFirst().getCustom();
                 String[] parts = customData.split(",");
                 Long userId = Long.parseLong(parts[0]);
-                Long orderId = Long.parseLong(parts[1]);
+                List<Long> orderIds = Arrays.stream(parts).skip(1).map(Long::parseLong).toList();
+                this.orderService.exportInvoice(userId, orderIds);
 
-                return orderService.exportInvoice(userId, orderId);
+                return ResponseEntity.ok("El pago fue exitoso. ID de pago: " + paymentId + ", ID de orden: " + orderIds);
+
+//                return ResponseEntity.status(HttpStatus.FOUND)
+//                        .location(URI.create("http://localhost:4200/payment-success")) // o el frontend que uses
+//                        .build();
+
             }
         } catch (Exception e) {
             throw new RuntimeException("Error durante el pago o exportación de factura: " + e.getMessage(), e);
@@ -100,19 +106,13 @@ public class PayPalController {
         return ResponseEntity.ok("El pago fue cancelado por el usuario.");
     }
 
+    @GetMapping("/error")
+    public ResponseEntity<String> paymentError() {
+        return ResponseEntity.ok("Hubo un error en el proceso de pago.");
+    }
 
-//    @GetMapping("/payment/cancel")
-//    public String paymentCancel() {
-//        return "paymentCancel";
-//    }
-//
-//    @GetMapping("/payment/error")
-//    public String paymentError() {
-//        return "paymentError";
-//    }
-
-    @GetMapping("exportInvoice")
-    public ResponseEntity<Resource> exportInvoice(@RequestParam Long idUser, @RequestParam Long idOrden){
+    @GetMapping("/invoice/download")
+    public ResponseEntity<Resource> exportInvoice(@RequestParam Long idUser, @RequestParam List<Long> idOrden){
         return orderService.exportInvoice(idUser, idOrden);
     }
 

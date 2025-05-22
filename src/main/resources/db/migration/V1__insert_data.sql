@@ -2,7 +2,7 @@
 INSERT INTO users (username, email, password, gender, image_profile) VALUES
     ('Administrador', 'admin@example.com', '$2a$12$K2tWPqfRCIxdSUhBJEMDGOCQDZ/v/koKzFmfXMBBBOLr/YsPinMvm', 'MASCULINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
     ('Manager', 'manager@example.com', '$2a$12$BuWzMP.RM4i855gdbNCYXO6mJKocVeGytnXfaahQjMZdAjagjeJp6', 'MASCULINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
-    ('Ricardo', 'ricardo@example.com', '$2a$12$9.YJ8h1nWXZCsQmzP.pdq.qIDAodqSTPLscrIl3bKkLS4FjyUpoBm', 'MASCULINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
+    ('Ricardo', 'travezvinueza@gmail.com', '$2a$12$9.YJ8h1nWXZCsQmzP.pdq.qIDAodqSTPLscrIl3bKkLS4FjyUpoBm', 'MASCULINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg'),
     ('Evelin', 'evelin@example.com', '$2a$12$LrJ.ybrJeyf2pvVywdHLcO0bY/GApQ0v.8do.iGEKy6DX3hcLR7fa', 'FEMENINE', 'https://res.cloudinary.com/duzogl1l3/image/upload/v1725165057/anonimus_pzvrq1.jpg');
 
 -- Insertar roles
@@ -112,9 +112,9 @@ VALUES
 ('PRODUCT-8F2C1D', 'Aspiradora', 150.00, 15, 'aspiradora.png', 3),
 ('PRODUCT-7F2C1D', 'Soporte tv', 15.50, 15, 'soporte.png', 3),
 ('PRODUCT-9F2C1D', 'Pistola Agua', 5.25, 11, 'pistola.png', 4),
-('PRODUCT-6G2C2O', 'Barbie', 25.99, 50, 'cargador.png', 4),
-('PRODUCT-7P7C1D', 'Balon', 5.99, 50, 'cargador.png', 4),
-('PRODUCT-4M8X2Y', 'Pupos', 30.99, 50, 'cargador.png', 4);
+('PRODUCT-6G2C2O', 'Barbie', 25.99, 50, 'barbie.png', 4),
+('PRODUCT-7P7C1D', 'Balon', 5.99, 50, 'balon.png', 4),
+('PRODUCT-4M8X2Y', 'Pupos', 30.99, 50, 'pupos.png', 4);
 
 -- Insertar algunas órdenes
 INSERT INTO orders (order_code, order_state, description, user_id)

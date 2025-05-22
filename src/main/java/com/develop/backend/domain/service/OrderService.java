@@ -9,7 +9,7 @@ import java.util.List;
 public interface OrderService {
     OrderDto createOrder(OrderDto orderDto);
     OrderDto findByIdOrder(Long id);
-    OrderDto updateOrder(OrderDto orderDto);
+    OrderDto updateOrder(Long id, OrderDto orderDto);
     List<OrderDto> listOrders(Long userId);
     OrderDto processOrder(Long orderId);
     OrderDto sendOrder(Long orderId);
@@ -17,5 +17,5 @@ public interface OrderService {
     OrderDto cancelOrder(Long orderId);
     OrderDto reactivateOrder(Long orderId);
 
-    ResponseEntity<Resource> exportInvoice(Long idUser, Long idOrder);
+    ResponseEntity<Resource> exportInvoice(Long idUser, List<Long> idOrder);
 }

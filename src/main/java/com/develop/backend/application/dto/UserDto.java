@@ -2,6 +2,8 @@ package com.develop.backend.application.dto;
 
 import com.develop.backend.domain.enums.Gender;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,6 +17,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDto {
     private Long id;
     @NotBlank(message = "username is required and cannot be blank.")
@@ -30,7 +34,7 @@ public class UserDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS", timezone = "America/Guayaquil")
     private Timestamp creationDate;
     private List<RoleDto> roles;
-    private List<OrderDto> orders;
+//    private List<OrderDto> orders;
     private String accessToken;
 
 }

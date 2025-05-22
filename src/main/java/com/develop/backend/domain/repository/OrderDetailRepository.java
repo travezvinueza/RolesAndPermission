@@ -4,6 +4,7 @@ import com.develop.backend.application.dto.projection.OrderDetailProjection;
 import com.develop.backend.domain.entity.OrderDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -22,9 +23,9 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
             "FROM order_details od " +
             "INNER JOIN products p ON od.product_id = p.id " +
             "INNER JOIN orders o ON od.order_id = o.id " +
-            "WHERE o.user_id = :idUser",
+            "WHERE o.user_id = :idUser AND od.order_id IN :idOrder",
             nativeQuery = true)
-    List<OrderDetailProjection> findAllByUserId(Long idUser);
+    List<OrderDetailProjection> findAllByUserIdAndOrderId(Long idUser, List<Long> idOrder);
 
     @Query("SELECT od FROM OrderDetail od WHERE od.order.id = :idOrder")
     List<OrderDetail> findByOrderId(Long idOrder);
@@ -35,4 +36,15 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
             "WHERE o.user_id = :id",
             nativeQuery = true)
     BigDecimal findTotalPriceByUserId(Long id);
+
+//    @Query("SELECT od FROM OrderDetail od WHERE od.order.user.id = :userId AND od.order.id = :orderId")
+//    List<OrderDetailProjection> findAllByUserIdAndOrderId(@Param("userId") Long userId, @Param("orderId") Long orderId);
+
+    @Query("SELECT SUM(d.quantity * d.unitPrice) FROM OrderDetail d WHERE d.order.user.id = :userId AND d.order.id = :orderId")
+    BigDecimal findTotalPriceByUserIdAndOrderId(@Param("userId") Long userId, @Param("orderId") Long orderId);
+
+    @Query("SELECT SUM(od.unitPrice * od.quantity) FROM OrderDetail od WHERE od.order.user.id = :userId AND od.order.id IN :orderIds")
+    BigDecimal findTotalPriceByUserIdAndOrderIds(@Param("userId") Long userId, @Param("orderIds") List<Long> orderIds);
+
+
 }

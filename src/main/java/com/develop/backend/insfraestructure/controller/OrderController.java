@@ -20,9 +20,9 @@ public class OrderController {
         return new ResponseEntity<>(orderService.createOrder(orderDto), HttpStatus.CREATED);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<OrderDto> updateOrder(@RequestBody OrderDto orderDto) {
-        return new ResponseEntity<>(orderService.updateOrder(orderDto), HttpStatus.OK);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<OrderDto> updateOrder(@PathVariable Long id, @RequestBody OrderDto orderDto) {
+        return new ResponseEntity<>(orderService.updateOrder(id, orderDto), HttpStatus.OK);
     }
 
     @GetMapping("/list/{userId}")

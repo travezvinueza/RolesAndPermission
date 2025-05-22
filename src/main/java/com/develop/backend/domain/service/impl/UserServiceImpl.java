@@ -3,6 +3,7 @@ package com.develop.backend.domain.service.impl;
 import com.develop.backend.application.dto.UserDto;
 import com.develop.backend.domain.entity.Role;
 import com.develop.backend.domain.entity.User;
+import com.develop.backend.domain.service.FileUploadService;
 import com.develop.backend.domain.service.UserService;
 import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
 import com.develop.backend.insfraestructure.exception.UserNotFoundException;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.develop.backend.application.mapper.UserMapper;
 import com.develop.backend.domain.repository.RoleRepository;
 import com.develop.backend.domain.repository.UserRepository;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -26,14 +28,32 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileUploadService fileUploadService;
 
     @Override
-    public UserDto updateUser(UserDto userDto) {
+    public UserDto updateUser(UserDto userDto, MultipartFile newImage) {
         User user = userRepository.findById(userDto.getId())
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userDto.getId()));
 
         user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
+        user.setGender(userDto.getGender());
+
+        if (newImage != null && !newImage.isEmpty()) {
+            if (user.getImageProfile() != null) {
+                try {
+                    fileUploadService.deleteUpload(user.getImageProfile());
+                } catch (Exception e) {
+                    log.error("Error al eliminar la imagen de perfil anterior: {}", e.getMessage());
+                }
+            }
+            try {
+                String fileUrl = fileUploadService.uploadFile(newImage, "users");
+                user.setImageProfile(fileUrl);
+            } catch (Exception e) {
+                log.error("Error al subir la imagen de perfil: {}", e.getMessage());
+            }
+        }
 
         // Verificar si hay una nueva contraseña
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
@@ -57,7 +77,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found for delete"));
         userRepository.delete(user);
     }
 
