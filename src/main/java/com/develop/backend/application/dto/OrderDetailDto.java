@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode // Added this
 public class OrderDetailDto {
     private Long id;
     private Long productId;
