@@ -20,19 +20,19 @@ import java.util.Objects;
 @Service
 public class FileUploadServiceImpl implements FileUploadService {
     @Value("${file.upload-dir}")
-    private String UPLOAD_FOLDER;
+    private String uploadFolder;
 
     @Value("${base-url}")
     private String baseUrl;
 
     @PostConstruct
     public void init() {
-        Path uploadPath = Paths.get(UPLOAD_FOLDER);
+        Path uploadPath = Paths.get(uploadFolder);
         if (!Files.exists(uploadPath)) {
             try {
                 Files.createDirectories(uploadPath);
             } catch (IOException e) {
-                log.error("No se pudo crear el directorio de carga: {}", UPLOAD_FOLDER, e);
+                log.error("No se pudo crear el directorio de carga: {}", uploadFolder, e);
             }
         }
     }
@@ -40,7 +40,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Override
     public String uploadFile(MultipartFile file, String folder) throws IOException {
         if (!file.isEmpty()){
-            Path uploadPath = Paths.get(UPLOAD_FOLDER, folder);
+            Path uploadPath = Paths.get(uploadFolder, folder);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
@@ -48,7 +48,7 @@ public class FileUploadServiceImpl implements FileUploadService {
             String originalFileName = Objects.requireNonNull(file.getOriginalFilename()); // Obtener el nombre original del archivo
             String sanitizedFileName = originalFileName.replaceAll("[^a-zA-Z0-9.]", "_");
             String encodedFileName = URLEncoder.encode(sanitizedFileName, StandardCharsets.UTF_8);
-            Path path = Paths.get(UPLOAD_FOLDER, folder, encodedFileName);
+            Path path = Paths.get(uploadFolder, folder, encodedFileName);
             Files.write(path, bytes);
             return baseUrl + folder + "/" + encodedFileName;
         }
@@ -58,7 +58,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Override
     public void deleteUpload(String fileUrl) throws IOException {
         String filePath = extractPathFromUrl(fileUrl);
-        Path path = Paths.get(UPLOAD_FOLDER, filePath);
+        Path path = Paths.get(uploadFolder, filePath);
         if (Files.deleteIfExists(path)) {
             log.info("Archivo eliminado: {}", filePath);
         } else {

@@ -15,7 +15,7 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
 
-    //    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+
     @PostMapping("/create")
     public ResponseEntity<List<ProductDto>> createProducts(@RequestBody List<ProductDto> productDto) {
         return new ResponseEntity<>(productService.createProduct(productDto), HttpStatus.CREATED);
@@ -23,7 +23,7 @@ public class ProductController {
 
     @PutMapping("/update")
     public ResponseEntity<ProductDto> updateProduct(@RequestBody ProductDto productDto) {
-        return new ResponseEntity<>(productService.updateProduct(productDto), HttpStatus.OK);
+        return new ResponseEntity<>(productService.updateProduct(productDto.getId(), productDto), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")

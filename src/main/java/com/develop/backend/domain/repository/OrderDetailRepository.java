@@ -37,14 +37,7 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
             nativeQuery = true)
     BigDecimal findTotalPriceByUserId(Long id);
 
-//    @Query("SELECT od FROM OrderDetail od WHERE od.order.user.id = :userId AND od.order.id = :orderId")
-//    List<OrderDetailProjection> findAllByUserIdAndOrderId(@Param("userId") Long userId, @Param("orderId") Long orderId);
-
-    @Query("SELECT SUM(d.quantity * d.unitPrice) FROM OrderDetail d WHERE d.order.user.id = :userId AND d.order.id = :orderId")
-    BigDecimal findTotalPriceByUserIdAndOrderId(@Param("userId") Long userId, @Param("orderId") Long orderId);
-
     @Query("SELECT SUM(od.unitPrice * od.quantity) FROM OrderDetail od WHERE od.order.user.id = :userId AND od.order.id IN :orderIds")
     BigDecimal findTotalPriceByUserIdAndOrderIds(@Param("userId") Long userId, @Param("orderIds") List<Long> orderIds);
-
 
 }

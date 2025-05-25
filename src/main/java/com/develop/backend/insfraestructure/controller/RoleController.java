@@ -23,7 +23,7 @@ public class RoleController {
 
     @PutMapping("/update")
     public ResponseEntity<RoleDto> updateRole(@RequestBody RoleDto roleDto) {
-        RoleDto updatedRole = roleService.updateRole(roleDto);
+        RoleDto updatedRole = roleService.updateRole(roleDto.getId(), roleDto);
         return ResponseEntity.ok(updatedRole);
     }
 

@@ -17,7 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class Swagger implements WebMvcConfigurer {
 
     @Value("${file.upload-dir}")
-    private String UPLOAD_FOLDER;
+    private String uploadFolder;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -31,7 +31,7 @@ public class Swagger implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry){
         registry.addResourceHandler("/upload/**")
-                .addResourceLocations("file:" + UPLOAD_FOLDER + "/");
+                .addResourceLocations("file:" + uploadFolder + "/");
     }
 
     @Bean

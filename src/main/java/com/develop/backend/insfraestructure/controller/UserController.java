@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -20,7 +21,7 @@ public class UserController {
 
     @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserDto> updateUser(@RequestPart UserDto userDto,
-                                              @RequestPart(required = false) MultipartFile newImage)  {
+                                              @RequestPart(required = false) MultipartFile newImage) throws IOException {
         return new ResponseEntity<>(userService.updateUser(userDto, newImage), HttpStatus.OK);
     }
 

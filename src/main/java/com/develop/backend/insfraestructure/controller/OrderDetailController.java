@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/3/order-detail")
+@RequestMapping("/v3/order-detail")
 @RequiredArgsConstructor
 public class OrderDetailController {
     private final OrderDetailService orderDetailService;
-//
-//    @PostMapping("/create")
-//    public ResponseEntity<OrderDetailDto> createOrderDetail(@RequestBody OrderDetailDto orderDetailDto) {
-//        OrderDetailDto savedOrderDetail = orderDetailService.saveOrderDetail(orderDetailDto);
-//        return new ResponseEntity<>(savedOrderDetail, HttpStatus.CREATED);
-//    }
+
+    @PostMapping("/create")
+    public ResponseEntity<OrderDetailDto> createOrderDetail(@RequestBody OrderDetailDto orderDetailDto) {
+        OrderDetailDto savedOrderDetail = orderDetailService.saveOrderDetail(orderDetailDto);
+        return new ResponseEntity<>(savedOrderDetail, HttpStatus.CREATED);
+    }
 
     @GetMapping("/getById/{id}")
     public ResponseEntity<OrderDetailDto> getOrderDetailById(@PathVariable Long id) {

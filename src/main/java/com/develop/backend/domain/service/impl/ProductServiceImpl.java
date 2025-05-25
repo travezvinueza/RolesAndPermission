@@ -62,8 +62,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto updateProduct(ProductDto productDto) {
-        Product product = productRepository.findById(productDto.getId()).orElseThrow(() -> new ProductNotFoundException("Product not found for update"));
+    public ProductDto updateProduct(Long id, ProductDto productDto) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found for update"));
         product.setProductName(productDto.getProductName());
         product.setPrice(productDto.getPrice());
         product.setStock(productDto.getStock());

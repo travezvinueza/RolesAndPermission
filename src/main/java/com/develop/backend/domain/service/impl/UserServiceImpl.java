@@ -16,6 +16,7 @@ import com.develop.backend.domain.repository.RoleRepository;
 import com.develop.backend.domain.repository.UserRepository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public class UserServiceImpl implements UserService {
     private final FileUploadService fileUploadService;
 
     @Override
-    public UserDto updateUser(UserDto userDto, MultipartFile newImage) {
+    public UserDto updateUser(UserDto userDto, MultipartFile newImage) throws IOException {
         User user = userRepository.findById(userDto.getId())
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userDto.getId()));
 
@@ -41,18 +42,10 @@ public class UserServiceImpl implements UserService {
 
         if (newImage != null && !newImage.isEmpty()) {
             if (user.getImageProfile() != null) {
-                try {
-                    fileUploadService.deleteUpload(user.getImageProfile());
-                } catch (Exception e) {
-                    log.error("Error al eliminar la imagen de perfil anterior: {}", e.getMessage());
-                }
+                fileUploadService.deleteUpload(user.getImageProfile());
             }
-            try {
-                String fileUrl = fileUploadService.uploadFile(newImage, "users");
-                user.setImageProfile(fileUrl);
-            } catch (Exception e) {
-                log.error("Error al subir la imagen de perfil: {}", e.getMessage());
-            }
+            String fileUrl = fileUploadService.uploadFile(newImage, "users");
+            user.setImageProfile(fileUrl);
         }
 
         // Verificar si hay una nueva contraseña

@@ -20,9 +20,9 @@ public class OrderController {
         return new ResponseEntity<>(orderService.createOrder(orderDto), HttpStatus.CREATED);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<OrderDto> updateOrder(@PathVariable Long id, @RequestBody OrderDto orderDto) {
-        return new ResponseEntity<>(orderService.updateOrder(id, orderDto), HttpStatus.OK);
+    @PutMapping("/update")
+    public ResponseEntity<OrderDto> updateOrder(@RequestBody OrderDto orderDto) {
+        return new ResponseEntity<>(orderService.updateOrder(orderDto.getId(), orderDto), HttpStatus.OK);
     }
 
     @GetMapping("/list/{userId}")
@@ -54,11 +54,6 @@ public class OrderController {
     public ResponseEntity<OrderDto> reactivateOrder(@PathVariable Long orderId) {
         return new ResponseEntity<>(orderService.reactivateOrder(orderId), HttpStatus.OK);
     }
-
-//    @PostMapping("/export")
-//    public ResponseEntity<Resource> exportInvoice(@RequestBody Long idOrder) {
-//        return orderService.exportInvoice(idOrder);
-//    }
 
     @GetMapping("/findByIdOrder/{id}")
     public ResponseEntity<OrderDto> findByIdOrder(@PathVariable Long id) {

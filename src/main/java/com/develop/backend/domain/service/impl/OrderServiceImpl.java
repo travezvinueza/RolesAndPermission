@@ -169,12 +169,8 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order order = orders.getFirst();
-//        List<OrderDetailProjection> orderDetailProjections = orderDetailRepository.findAllByUserId(idUser);
-//        BigDecimal total = orderDetailRepository.findTotalPriceByUserId(idUser);
-
         List<OrderDetailProjection> orderDetailProjections = orderDetailRepository.findAllByUserIdAndOrderId(idUser, idOrder);
         BigDecimal total = orderDetailRepository.findTotalPriceByUserIdAndOrderIds(idUser, idOrder);
-
 
         try {
             File file = ResourceUtils.getFile("classpath:report/reports.jasper");

@@ -21,14 +21,15 @@ public class PayPalConfig {
     private String mode;
 
     @Bean
-    public Map<String,String> payPalSDKConfig () {
-        Map<String,String> config = new HashMap<>();
-        config.put("mode",mode);
+    public Map<String, String> payPalSDKConfig() {
+        Map<String, String> config = new HashMap<>();
+        config.put("mode", mode);
         return config;
     }
+
     @Bean
-    public OAuthTokenCredential oAuthTokenCredential(){
-        return new OAuthTokenCredential(clientId,clientSecret,payPalSDKConfig());
+    public OAuthTokenCredential oAuthTokenCredential() {
+        return new OAuthTokenCredential(clientId, clientSecret, payPalSDKConfig());
     }
 
     @Bean

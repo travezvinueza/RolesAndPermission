@@ -36,7 +36,6 @@ public class PayPalController {
             @RequestBody List<Long> orderIds
     ) {
         try {
-//            BigDecimal total = orderDetailRepository.findTotalPriceByUserId(userId);
             BigDecimal total = orderDetailRepository.findTotalPriceByUserIdAndOrderIds(userId, orderIds);
             if (total == null || total.compareTo(BigDecimal.ZERO) <= 0) {
                 return ResponseEntity.ok("No hay ordenes para pagar");
@@ -69,7 +68,6 @@ public class PayPalController {
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the payment");
     }
-
 
     @GetMapping("/success")
     public ResponseEntity<String> paymentSuccess(

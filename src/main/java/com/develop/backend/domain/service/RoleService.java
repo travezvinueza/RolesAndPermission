@@ -11,7 +11,7 @@ public interface RoleService {
 
     RoleDto saveRole(RoleDto roleDto);
 
-    RoleDto updateRole(RoleDto roleDto);
+    RoleDto updateRole(Long id, RoleDto roleDto);
 
     List<RoleDto> findAllRole();
 

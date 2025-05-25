@@ -67,15 +67,15 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto updateRole(RoleDto roleDto) {
-        Role existingRole = roleRepository.findById(roleDto.getId())
+    public RoleDto updateRole(Long id, RoleDto roleDto) {
+        Role existingRole = roleRepository.findById(id)
                 .orElseThrow(() -> new RoleNotFoundException("Role not found for update"));
 
         Set<Permission> permissions = Optional.ofNullable(roleDto.getPermissionId())
                 .orElse(Collections.emptySet())
                 .stream()
-                .map(id -> permissionRepository.findById(id).orElseThrow(() ->
-                        new PermissionNotFoundException("Permission not found: " + id)))
+                .map(permissionId -> permissionRepository.findById(permissionId)
+                        .orElseThrow(() -> new PermissionNotFoundException("Permission not found: " + permissionId)))
                 .collect(Collectors.toSet());
 
         existingRole.setRoleName(roleDto.getRoleName());
