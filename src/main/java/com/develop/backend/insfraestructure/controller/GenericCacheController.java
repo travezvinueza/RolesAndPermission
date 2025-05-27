@@ -14,7 +14,6 @@ import java.util.Optional;
 public class GenericCacheController {
     private final GenericCacheService genericCacheService;
 
-
     @PostMapping("/{key}")
     public ResponseEntity<Void> saveToCache(@PathVariable String key, @RequestBody Object value) {
         genericCacheService.saveToCache(key, value);

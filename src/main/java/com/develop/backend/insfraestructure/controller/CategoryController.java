@@ -14,7 +14,6 @@ import java.util.List;
 @RequestMapping("/v3/category")
 @RequiredArgsConstructor
 public class CategoryController {
-
     private final CategoryService categoryService;
 
     @PostMapping("/create")
