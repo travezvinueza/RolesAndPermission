@@ -9,6 +9,9 @@ import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
 import com.develop.backend.insfraestructure.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.develop.backend.application.mapper.UserMapper;
@@ -17,7 +20,6 @@ import com.develop.backend.domain.repository.UserRepository;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,10 +77,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(user -> userMapper.toUserDto(user, null))
-                .toList();
+    public Page<UserDto> getAllUsers(String username, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> userPage;
+        if (username != null && !username.isBlank()) {
+            userPage = userRepository.findByUsernameContaining(username, pageable);
+        } else {
+            userPage = userRepository.findAll(pageable);
+        }
+
+        return userPage.map(user -> userMapper.toUserDto(user, null));
     }
 
     @Override

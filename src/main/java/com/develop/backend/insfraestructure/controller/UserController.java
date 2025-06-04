@@ -3,6 +3,7 @@ package com.develop.backend.insfraestructure.controller;
 import com.develop.backend.application.dto.UserDto;
 import com.develop.backend.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/v3/user")
@@ -26,8 +26,11 @@ public class UserController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+    public ResponseEntity<Page<UserDto>> getAllUsers(@RequestParam(required = false) String username,
+                                                     @RequestParam(defaultValue = "0") int page,
+                                                     @RequestParam(defaultValue = "10") int size) {
+        Page<UserDto> users = userService.getAllUsers(username, page, size);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/getById/{id}")
