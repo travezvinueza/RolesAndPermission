@@ -1,0 +1,55 @@
+extend type Query {
+    users(username: String, page: Int = 0, size: Int = 10): UserPage
+    getUserById(id: ID!): User
+    getAllUsers: [User]
+}
+
+extend type Mutation {
+    createUser(input: UserDto): User
+    updateUser(id: ID!, input: UserDto): User
+    deleteUser(id: ID!): Boolean
+}
+
+input UserDto {
+    username: String
+    email: String
+    password: String
+    gender: Gender
+    imageProfile: String
+    roles: [RoleDto]
+}
+
+input RoleDto {
+    id: ID
+    roleName: String
+}
+
+type User {
+    id: ID
+    username: String
+    email: String
+    gender: Gender
+    imageProfile: String
+    roles: [Role]
+}
+
+type Role {
+    id: ID
+    roleName: String
+}
+
+enum Gender {
+    MASCULINE,
+    FEMENINE,
+    OTHER
+}
+
+type UserPage {
+    content: [User]
+    totalPages: Int
+    totalElements: Int
+    number: Int
+    size: Int
+    last: Boolean
+    first: Boolean
+}
