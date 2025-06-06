@@ -6,9 +6,10 @@ import com.develop.backend.domain.repository.CategoryRepository;
 import com.develop.backend.domain.service.CategoryService;
 import com.develop.backend.insfraestructure.exception.CategoryNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,10 +43,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .map(CategoryDto::fromEntity)
-                .toList();
+    public Page<CategoryDto> getAllCategories(String categoryName, int page, int size) {
+       Pageable pageable = PageRequest.of(page, size);
+       Page<Category> categoryPage;
+
+       if (categoryName != null && !categoryName.isBlank()) {
+           categoryPage = categoryRepository.findByCategoryNameContaining(categoryName, pageable);
+       } else {
+           categoryPage = categoryRepository.findAll(pageable);
+       }
+       return categoryPage.map(CategoryDto::fromEntity);
     }
 
     @Override

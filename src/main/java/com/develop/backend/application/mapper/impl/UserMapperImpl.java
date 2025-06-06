@@ -2,6 +2,7 @@ package com.develop.backend.application.mapper.impl;
 
 import com.develop.backend.application.dto.RoleDto;
 import com.develop.backend.application.dto.UserDto;
+import com.develop.backend.application.dto.request.RegisterReqDto;
 import com.develop.backend.application.mapper.UserMapper;
 import com.develop.backend.domain.entity.Role;
 import com.develop.backend.domain.entity.User;
@@ -17,16 +18,16 @@ public class UserMapperImpl implements UserMapper {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User toUser(UserDto userDto, Set<Role> roles) {
-        if (userDto == null) {
+    public User toUser(RegisterReqDto registerReqDto, Set<Role> roles) {
+        if (registerReqDto == null) {
             return null;
         }
         return User.builder()
-                .username(userDto.getUsername())
-                .email(userDto.getEmail())
-                .password(passwordEncoder.encode(userDto.getPassword()))
-                .gender(userDto.getGender())
-                .imageProfile(userDto.getImageProfile())
+                .username(registerReqDto.getUsername())
+                .email(registerReqDto.getEmail())
+                .password(passwordEncoder.encode(registerReqDto.getPassword()))
+                .gender(registerReqDto.getGender())
+                .imageProfile(registerReqDto.getImageProfile())
                 .roles(roles)
                 .build();
     }

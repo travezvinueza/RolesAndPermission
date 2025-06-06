@@ -1,6 +1,7 @@
 package com.develop.backend.domain.service.impl;
 
 import com.develop.backend.application.dto.request.RefreshTokenReqDto;
+import com.develop.backend.application.dto.request.RegisterReqDto;
 import com.develop.backend.application.dto.response.JwtResponse;
 import com.develop.backend.application.dto.request.LoginReqDto;
 import com.develop.backend.application.dto.TokenDto;
@@ -60,22 +61,22 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserDto register(UserDto userDto) {
-        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+    public UserDto register(RegisterReqDto registerReqDto) {
+        if (userRepository.findByEmail(registerReqDto.getEmail()).isPresent()) {
             throw new UserNotFoundException("El usuario ya existe");
         }
 
         Role defaultRole = roleRepository.findByRoleName("ROLE_USER")
                 .orElseThrow(() -> new RoleNotFoundException("Rol predeterminado 'ROLE_USER' no encontrado"));
 
-        Set<Role> roles = (userDto.getRoles() == null || userDto.getRoles().isEmpty())
+        Set<Role> roles = (registerReqDto.getRoles() == null || registerReqDto.getRoles().isEmpty())
                 ? Set.of(defaultRole)
-                : userDto.getRoles().stream()
+                : registerReqDto.getRoles().stream()
                 .map(roleDto -> roleRepository.findByRoleName(roleDto.getRoleName())
                         .orElseThrow(() -> new RoleNotFoundException("Rol no encontrado: " + roleDto.getRoleName())))
                 .collect(Collectors.toSet());
 
-        User newUser = userMapper.toUser(userDto, roles);
+        User newUser = userMapper.toUser(registerReqDto, roles);
         User savedUser = userRepository.save(newUser);
 
         String accessToken =  jwtGenerator.generateToken(savedUser);

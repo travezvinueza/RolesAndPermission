@@ -4,11 +4,10 @@ import com.develop.backend.application.dto.CategoryDto;
 import com.develop.backend.domain.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/v3/category")
@@ -35,8 +34,10 @@ public class CategoryController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<CategoryDto>> getAllCategories (){
-        List<CategoryDto> categories = categoryService.getAllCategories();
+    public ResponseEntity<Page<CategoryDto>> getAllCategories (@RequestParam(required = false) String categoryName,
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size){
+        Page<CategoryDto> categories = categoryService.getAllCategories(categoryName, page, size);
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 

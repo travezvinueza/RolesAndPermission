@@ -1,12 +1,12 @@
 package com.develop.backend.insfraestructure.controller;
 
+import com.develop.backend.application.dto.request.RegisterReqDto;
 import com.develop.backend.application.dto.response.JwtResponse;
 import com.develop.backend.application.dto.request.LoginReqDto;
 import com.develop.backend.application.dto.request.RefreshTokenReqDto;
 import com.develop.backend.application.dto.UserDto;
 import com.develop.backend.domain.service.AuthService;
 import com.develop.backend.domain.service.EmailService;
-import com.develop.backend.domain.service.FileUploadService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -25,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final FileUploadService fileUploadService;
     private final EmailService emailService;
 
     @PostMapping("/login")
@@ -33,14 +31,9 @@ public class AuthController {
         return new ResponseEntity<>(authService.login(loginReqDto), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserDto> register(@Valid @RequestPart UserDto userDto,
-                                            @RequestPart(required = false) MultipartFile imageProfile) throws IOException {
-        if (imageProfile != null && !imageProfile.isEmpty()) {
-            String fileUrl = fileUploadService.uploadFile(imageProfile, "users");
-            userDto.setImageProfile(fileUrl);
-        }
-        return new ResponseEntity<>(authService.register(userDto), HttpStatus.CREATED);
+    @PostMapping("/register")
+    public ResponseEntity<UserDto> register(@Valid @RequestBody RegisterReqDto registerReqDto) {
+        return new ResponseEntity<>(authService.register(registerReqDto), HttpStatus.CREATED);
     }
 
     @PostMapping("/refresh-token")

@@ -43,14 +43,13 @@ public class UserServiceImpl implements UserService {
         user.setGender(userDto.getGender());
 
         if (newImage != null && !newImage.isEmpty()) {
-            if (user.getImageProfile() != null) {
+            if (user.getImageProfile() != null && !user.getImageProfile().isEmpty()) {
                 fileUploadService.deleteUpload(user.getImageProfile());
             }
             String fileUrl = fileUploadService.uploadFile(newImage, "users");
             user.setImageProfile(fileUrl);
         }
 
-        // Verificar si hay una nueva contraseña
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
