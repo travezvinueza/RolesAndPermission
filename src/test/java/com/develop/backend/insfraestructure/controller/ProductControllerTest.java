@@ -2,17 +2,21 @@ package com.develop.backend.insfraestructure.controller;
 
 import com.develop.backend.application.dto.CategoryDto;
 import com.develop.backend.application.dto.ProductDto;
+import com.develop.backend.domain.service.FileUploadService;
 import com.develop.backend.domain.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,12 +32,15 @@ class ProductControllerTest {
     @Mock
     private ProductService productService;
 
+    @Mock
+    private FileUploadService fileUploadService;
+
     private CategoryDto getDefaultCategoryDto() {
         return CategoryDto.builder().id(1L).categoryName("Electronics").build();
     }
 
     @Test
-    void createProducts() {
+    void createProducts() throws IOException {
         CategoryDto categoryDto = getDefaultCategoryDto();
         ProductDto productDto1 = ProductDto.builder().productCode("P001").productName("Laptop").price(new BigDecimal("1200.00")).stock(10).categoryDto(categoryDto).build();
         ProductDto productDto2 = ProductDto.builder().productCode("P002").productName("Mouse").price(new BigDecimal("25.00")).stock(50).categoryDto(categoryDto).build();
@@ -45,7 +52,7 @@ class ProductControllerTest {
 
         when(productService.createProduct(anyList())).thenReturn(expectedProducts);
 
-        ResponseEntity<List<ProductDto>> responseEntity = productController.createProducts(inputProducts);
+        ResponseEntity<List<ProductDto>> responseEntity = productController.createProducts(inputProducts, null);
 
         assertNotNull(responseEntity);
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
@@ -54,20 +61,36 @@ class ProductControllerTest {
     }
 
     @Test
-    void updateProduct() {
-        Long productId = 1L;
+    void updateProduct() throws IOException {
+        Long productId = 2L;
         CategoryDto categoryDto = getDefaultCategoryDto();
-        ProductDto productToUpdate = ProductDto.builder().id(productId).productCode("P001_updated").productName("Laptop Updated").price(new BigDecimal("1250.00")).stock(5).categoryDto(categoryDto).build();
-        ProductDto expectedProduct = ProductDto.builder().id(productId).productCode("P001_updated").productName("Laptop Updated").price(new BigDecimal("1250.00")).stock(5).categoryDto(categoryDto).build();
 
-        when(productService.updateProduct(anyLong(), any(ProductDto.class))).thenReturn(expectedProduct);
+        ProductDto inputDto = ProductDto.builder()
+                .id(productId)
+                .productCode("P002")
+                .productName("Updated Mouse")
+                .price(new BigDecimal("25.00"))
+                .stock(100)
+                .categoryDto(categoryDto)
+                .build();
 
-        ResponseEntity<ProductDto> responseEntity = productController.updateProduct(productToUpdate);
+        ProductDto updatedDto = ProductDto.builder()
+                .id(productId)
+                .productCode("P002")
+                .productName("Updated Mouse")
+                .price(new BigDecimal("25.00"))
+                .stock(100)
+                .categoryDto(categoryDto)
+                .build();
 
-        assertNotNull(responseEntity);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(expectedProduct, responseEntity.getBody());
-        verify(productService).updateProduct(eq(productId), eq(productToUpdate));
+        when(productService.updateProduct(eq(productId), any(ProductDto.class), isNull()))
+                .thenReturn(updatedDto);
+
+        ResponseEntity<ProductDto> response = productController.updateProduct(inputDto, null);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Updated Mouse", response.getBody().getProductName());
     }
 
     @Test
@@ -100,13 +123,40 @@ class ProductControllerTest {
 
     @Test
     void getAllProducts() {
-        when(productService.getAllProducts()).thenReturn(Collections.emptyList());
+        List<ProductDto> products = List.of(
+                ProductDto.builder()
+                        .id(1L)
+                        .productCode("P001")
+                        .productName("Shampoo")
+                        .price(new BigDecimal("10.00"))
+                        .stock(50)
+                        .imageProduct("image1.jpg")
+                        .categoryDto(getDefaultCategoryDto())
+                        .build(),
+                ProductDto.builder()
+                        .id(2L)
+                        .productCode("P002")
+                        .productName("Laptop")
+                        .price(new BigDecimal("1200.00"))
+                        .stock(10)
+                        .imageProduct("image2.jpg")
+                        .categoryDto(getDefaultCategoryDto())
+                        .build()
+        );
 
-        ResponseEntity<List<ProductDto>> responseEntity = productController.getAllProducts();
+        Page<ProductDto> productPage = new PageImpl<>(products, PageRequest.of(0, 10), products.size());
+
+        when(productService.getAllProducts(null, 0, 10)).thenReturn(productPage);
+
+        ResponseEntity<Page<ProductDto>> responseEntity = productController.getAllProducts(null, 0, 10);
 
         assertNotNull(responseEntity);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(Collections.emptyList(), responseEntity.getBody());
-        verify(productService).getAllProducts();
+        assertNotNull(responseEntity.getBody());
+        assertEquals(2, responseEntity.getBody().getContent().size());
+        assertEquals("Shampoo", responseEntity.getBody().getContent().get(0).getProductName());
+        assertEquals("Laptop", responseEntity.getBody().getContent().get(1).getProductName());
+        verify(productService).getAllProducts(null, 0, 10);
     }
+
 }

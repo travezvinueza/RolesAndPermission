@@ -5,6 +5,7 @@ import com.develop.backend.domain.entity.Category;
 import com.develop.backend.domain.entity.Product;
 import com.develop.backend.domain.repository.CategoryRepository;
 import com.develop.backend.domain.repository.ProductRepository;
+import com.develop.backend.domain.service.FileUploadService;
 import com.develop.backend.domain.service.GenericCacheService;
 import com.develop.backend.domain.service.ProductService;
 import com.develop.backend.insfraestructure.exception.CategoryNotFoundException;
@@ -12,8 +13,13 @@ import com.develop.backend.insfraestructure.exception.ProductNotFoundException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +30,7 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final FileUploadService fileUploadService;
     private final GenericCacheService cacheService;
 
 
@@ -62,12 +69,19 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDto updateProduct(Long id, ProductDto productDto) {
+    public ProductDto updateProduct(Long id, ProductDto productDto, MultipartFile newImage) throws IOException {
         Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found for update"));
         product.setProductName(productDto.getProductName());
         product.setPrice(productDto.getPrice());
         product.setStock(productDto.getStock());
-        product.setImageProduct(productDto.getImageProduct());
+
+        if (newImage != null && !newImage.isEmpty()) {
+            if (product.getImageProduct() != null && !product.getImageProduct().isEmpty()) {
+                fileUploadService.deleteUpload(product.getImageProduct());
+            }
+            String fileUrl = fileUploadService.uploadFile(newImage, "products");
+            product.setImageProduct(fileUrl);
+        }
 
         if (productDto.getCategoryDto() != null) {
             Category category = null;
@@ -103,21 +117,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> getAllProducts() {
-        String cacheKey = "product:all";
+    public Page<ProductDto> getAllProducts(String productName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage;
 
-        List<ProductDto> cachedList = cacheService.getListFromCache(cacheKey, new TypeReference<>() {
-        });
-        if (cachedList != null) return cachedList;
-
-        List<ProductDto> dtoList = productRepository.findAll()
-                .stream()
-                .map(ProductDto::fromEntity)
-                .toList();
-
-        cacheService.saveToCache(cacheKey, dtoList);
-        return dtoList;
+        if (productName != null && !productName.isBlank()) {
+            productPage = productRepository.findByProductNameContaining(productName, pageable);
+        } else {
+            productPage = productRepository.findAll(pageable);
+        }
+        return productPage.map(ProductDto::fromEntity);
     }
+
 
     @Override
     public ProductDto getProductById(Long productId) {

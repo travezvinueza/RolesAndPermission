@@ -1,7 +1,6 @@
-package com.develop.backend.insfraestructure.controller;
+package com.develop.backend.insfraestructure.resolver;
 
 import com.develop.backend.application.dto.UserDto;
-import com.develop.backend.domain.service.AuthService;
 import com.develop.backend.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,7 +17,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserGraphQLController {
 
-    private final AuthService authService;
     private final UserService userService;
 
     @QueryMapping
@@ -39,12 +37,7 @@ public class UserGraphQLController {
     }
 
     @MutationMapping
-    public UserDto createUser(@Argument UserDto userDto ) {
-        return authService.register(userDto);
-    }
-
-    @MutationMapping
-    public UserDto updateUser(@Argument("userDto") UserDto userDto,
+    public UserDto updateUser(@Argument("input") UserDto userDto,
                               @Argument("newImage") MultipartFile newImage) throws IOException {
         return userService.updateUser(userDto, newImage);
     }

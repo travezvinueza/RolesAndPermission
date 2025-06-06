@@ -1,39 +1,55 @@
 extend type Query {
-    users(username: String, page: Int = 0, size: Int = 10): UserPage
-    getUserById(id: ID!): User
-    getAllUsers: [User]
+    users(username: String, page: Int = 0, size: Int = 10): UserPageResponse
+    getUserById(id: ID!): UserDto
+    getAllUsers: [UserDto]
 }
 
 extend type Mutation {
-    createUser(input: UserDto): User
-    updateUser(id: ID!, input: UserDto): User
+    login(input: LoginReqDto!): JwtResponse
+    register(input: RegisterReqDto!): UserDto
+    refreshToken(input: RefreshTokenReqDto!): JwtResponse!
+    updateUser(id: ID!, input: RegisterReqDto): UserDto
     deleteUser(id: ID!): Boolean
 }
 
-input UserDto {
+input RefreshTokenReqDto {
+    refreshToken: String
+}
+
+input LoginReqDto {
+    identifier: String
+    password: String
+}
+
+input RegisterReqDto {
     username: String
     email: String
     password: String
     gender: Gender
     imageProfile: String
-    roles: [RoleDto]
+    roles: [Role]
 }
 
-input RoleDto {
+input Role {
     id: ID
     roleName: String
 }
 
-type User {
+type JwtResponse {
+    accessToken: String
+    refreshToken: String
+}
+
+type UserDto {
     id: ID
     username: String
     email: String
-    gender: Gender
     imageProfile: String
-    roles: [Role]
+    gender: Gender
+    roles: [RoleDto!]
 }
 
-type Role {
+type RoleDto {
     id: ID
     roleName: String
 }
@@ -44,12 +60,13 @@ enum Gender {
     OTHER
 }
 
-type UserPage {
-    content: [User]
-    totalPages: Int
+type UserPageResponse {
+    content: [UserDto]
     totalElements: Int
+    totalPages: Int
     number: Int
+    page: Int
     size: Int
-    last: Boolean
     first: Boolean
+    last: Boolean
 }

@@ -1,8 +1,7 @@
 package com.develop.backend.domain.service;
 
 import com.develop.backend.application.dto.CategoryDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface CategoryService {
     CategoryDto createCategory(CategoryDto categoryDto);
@@ -11,7 +10,7 @@ public interface CategoryService {
 
     void deleteCategory(Long id);
 
-    List<CategoryDto> getAllCategories();
+    Page<CategoryDto> getAllCategories(String categoryName, int page, int size);
 
     CategoryDto getCategoryById(Long id);
 }

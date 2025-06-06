@@ -7,12 +7,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -72,17 +75,23 @@ class CategoryControllerTest {
     void getAllCategories() {
         CategoryDto category1 = CategoryDto.builder().id(1L).categoryName("Books").build();
         CategoryDto category2 = CategoryDto.builder().id(2L).categoryName("Movies").build();
-        List<CategoryDto> expectedCategories = List.of(category1, category2);
 
-        when(categoryService.getAllCategories()).thenReturn(expectedCategories);
+        List<CategoryDto> categoriesList = List.of(category1, category2);
+        Page<CategoryDto> categoryPage = new PageImpl<>(categoriesList);
 
-        ResponseEntity<List<CategoryDto>> responseEntity = categoryController.getAllCategories();
+        when(categoryService.getAllCategories(null, 0, 10)).thenReturn(categoryPage);
+
+        ResponseEntity<Page<CategoryDto>> responseEntity = categoryController.getAllCategories(null, 0, 10);
 
         assertNotNull(responseEntity);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(expectedCategories, responseEntity.getBody());
-        verify(categoryService).getAllCategories();
+        assertEquals(2, responseEntity.getBody().getContent().size());
+        assertEquals("Books", responseEntity.getBody().getContent().get(0).getCategoryName());
+        assertEquals("Movies", responseEntity.getBody().getContent().get(1).getCategoryName());
+
+        verify(categoryService).getAllCategories(eq(null), eq(0), eq(10));
     }
+
 
     @Test
     void getCategoryById() {

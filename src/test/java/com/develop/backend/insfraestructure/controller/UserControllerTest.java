@@ -7,13 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,20 +51,17 @@ class UserControllerTest {
         List<UserDto> userList = List.of(user1, user2);
         Page<UserDto> userPage = new PageImpl<>(userList);
 
-        // Configurar comportamiento del mock
-        when(userService.getAllUsers("user", 0, 10)).thenReturn(userPage);
+        when(userService.getAllUsers(null, 0, 10)).thenReturn(userPage);
 
-        // Act: llamar al método del controlador
-        ResponseEntity<Page<UserDto>> response = userController.getAllUsers("user", 0, 10);
+        ResponseEntity<Page<UserDto>> response = userController.getAllUsers(null, 0, 10);
 
-        // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(2, response.getBody().getContent().size());
         assertEquals("user1", response.getBody().getContent().get(0).getUsername());
         assertEquals("user2", response.getBody().getContent().get(1).getUsername());
 
-        verify(userService).getAllUsers("user", 0, 10);
+        verify(userService).getAllUsers(null, 0, 10);
     }
 
     @Test

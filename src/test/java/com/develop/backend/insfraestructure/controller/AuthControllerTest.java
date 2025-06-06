@@ -3,10 +3,10 @@ package com.develop.backend.insfraestructure.controller;
 import com.develop.backend.application.dto.UserDto;
 import com.develop.backend.application.dto.request.LoginReqDto;
 import com.develop.backend.application.dto.request.RefreshTokenReqDto;
+import com.develop.backend.application.dto.request.RegisterReqDto;
 import com.develop.backend.application.dto.response.JwtResponse;
 import com.develop.backend.domain.enums.Gender;
 import com.develop.backend.domain.service.AuthService;
-import com.develop.backend.domain.service.FileUploadService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,9 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,8 +28,6 @@ class AuthControllerTest {
     @Mock
     private AuthService authService;
 
-    @Mock
-    private FileUploadService fileUploadService;
 
     @Test
     void login() {
@@ -49,19 +44,17 @@ class AuthControllerTest {
     }
 
     @Test
-    void register() throws IOException {
-        UserDto userDto = UserDto.builder().username("testuser").email("test@example.com").password("password").gender(Gender.MASCULINE).build();
+    void register() {
+        RegisterReqDto registerReqDto = RegisterReqDto.builder().username("testuser").email("test@example.com").password("password").gender(Gender.MASCULINE).build();
         UserDto expectedUserDto = UserDto.builder().id(1L).username("testuser").email("test@example.com").gender(Gender.MASCULINE).build();
 
-        when(authService.register(any(UserDto.class))).thenReturn(expectedUserDto);
-        ResponseEntity<UserDto> responseEntity = authController.register(userDto, null);
+        when(authService.register(any(RegisterReqDto.class))).thenReturn(expectedUserDto);
+        ResponseEntity<UserDto> responseEntity = authController.register(registerReqDto);
 
         assertNotNull(responseEntity);
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
         assertEquals(expectedUserDto, responseEntity.getBody());
-
-        verify(authService).register(any(UserDto.class));
-        verify(fileUploadService, never()).uploadFile(any(MultipartFile.class), any(String.class));
+        verify(authService).register(any(RegisterReqDto.class));
     }
 
     @Test
