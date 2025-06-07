@@ -1,6 +1,6 @@
 package com.develop.backend.domain.service;
 
-import com.develop.backend.insfraestructure.exception.EmailSendNotFoundException;
+import com.develop.backend.infrastructure.exception.EmailSendNotFoundException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

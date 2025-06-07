@@ -6,13 +6,14 @@ import com.develop.backend.domain.entity.Role;
 import com.develop.backend.domain.repository.PermissionRepository;
 import com.develop.backend.domain.repository.RoleRepository;
 import com.develop.backend.domain.service.RoleService;
-import com.develop.backend.insfraestructure.exception.PermissionNotFoundException;
-import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
+import com.develop.backend.infrastructure.exception.PermissionNotFoundException;
+import com.develop.backend.infrastructure.exception.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,18 +33,15 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDto findByRoleName(String roleName) {
-        Role role = roleRepository.findByRoleName(roleName)
-                .orElseThrow(() -> new RoleNotFoundException("Role not found"));
+    public Page<RoleDto> findAllRole(String roleName, Pageable pageable) {
+        Page<Role> rolePage;
 
-        return RoleDto.fromEntity(role);
-    }
-
-    @Override
-    public List<RoleDto> findAllRole() {
-        return roleRepository.findAll().stream()
-                .map(RoleDto::fromEntity)
-                .toList();
+        if (roleName != null && !roleName.isBlank()) {
+            rolePage = roleRepository.findByRoleNameContaining(roleName, pageable);
+        } else {
+            rolePage = roleRepository.findAll(pageable);
+        }
+        return rolePage.map(RoleDto::fromEntity);
     }
 
     @Override
@@ -55,8 +53,8 @@ public class RoleServiceImpl implements RoleService {
         Set<Permission> permissions = Optional.ofNullable(roleDto.getPermissionId())
                 .orElse(Collections.emptySet())
                 .stream()
-                .map(id -> permissionRepository.findById(id).orElseThrow(() ->
-                        new PermissionNotFoundException("Permission not found: " + id)))
+                .map(id -> permissionRepository.findById(id)
+                        .orElseThrow(() -> new PermissionNotFoundException("Permission not found: " + id)))
                 .collect(Collectors.toSet());
 
         Role role = Role.fromDto(roleDto, permissions);
@@ -88,11 +86,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRole(Long id) {
-        Role role = roleRepository.findById(id).orElseThrow(null);
-        if (role == null) {
-            throw new RoleNotFoundException("Role not found for delete");
-        }
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new RoleNotFoundException("Role not found for delete"));
         roleRepository.delete(role);
     }
-
 }

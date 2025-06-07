@@ -6,7 +6,7 @@ import com.develop.backend.domain.entity.User;
 import com.develop.backend.domain.repository.TokenRepository;
 import com.develop.backend.domain.repository.UserRepository;
 import com.develop.backend.domain.service.TokenService;
-import com.develop.backend.insfraestructure.util.JwtGenerator;
+import com.develop.backend.infrastructure.util.JwtGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

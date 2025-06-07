@@ -5,7 +5,7 @@ import com.develop.backend.domain.entity.OrderDetail;
 import com.develop.backend.domain.repository.OrderDetailRepository;
 import com.develop.backend.domain.repository.ProductRepository;
 import com.develop.backend.domain.service.OrderDetailService;
-import com.develop.backend.insfraestructure.exception.ProductNotFoundException;
+import com.develop.backend.infrastructure.exception.ProductNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

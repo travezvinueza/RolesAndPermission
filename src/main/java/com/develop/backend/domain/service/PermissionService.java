@@ -1,13 +1,13 @@
 package com.develop.backend.domain.service;
 
 import com.develop.backend.application.dto.PermissionDto;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PermissionService {
     PermissionDto findByIdPermission(Long id);
 
-    List<PermissionDto> findAllPermission();
+    Page<PermissionDto> findAllPermission(String permissionName, Pageable pageable);
 
     PermissionDto savePermission(PermissionDto permissionDto);
 

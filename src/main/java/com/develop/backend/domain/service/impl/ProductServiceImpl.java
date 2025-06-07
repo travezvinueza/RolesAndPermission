@@ -8,13 +8,13 @@ import com.develop.backend.domain.repository.ProductRepository;
 import com.develop.backend.domain.service.FileUploadService;
 import com.develop.backend.domain.service.GenericCacheService;
 import com.develop.backend.domain.service.ProductService;
-import com.develop.backend.insfraestructure.exception.CategoryNotFoundException;
-import com.develop.backend.insfraestructure.exception.ProductNotFoundException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.develop.backend.infrastructure.exception.CategoryNotFoundException;
+import com.develop.backend.infrastructure.exception.ProductNotFoundException;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +26,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
@@ -76,10 +77,10 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(productDto.getStock());
 
         if (newImage != null && !newImage.isEmpty()) {
+            String fileUrl = fileUploadService.uploadFile(newImage, "products");
             if (product.getImageProduct() != null && !product.getImageProduct().isEmpty()) {
                 fileUploadService.deleteUpload(product.getImageProduct());
             }
-            String fileUrl = fileUploadService.uploadFile(newImage, "products");
             product.setImageProduct(fileUrl);
         }
 
@@ -117,8 +118,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDto> getAllProducts(String productName, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<ProductDto> getAllProducts(String productName, Pageable pageable) {
         Page<Product> productPage;
 
         if (productName != null && !productName.isBlank()) {

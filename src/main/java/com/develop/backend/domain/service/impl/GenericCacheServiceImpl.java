@@ -3,7 +3,7 @@ package com.develop.backend.domain.service.impl;
 import com.develop.backend.domain.entity.Cache;
 import com.develop.backend.domain.repository.CacheRepository;
 import com.develop.backend.domain.service.GenericCacheService;
-import com.develop.backend.insfraestructure.util.CacheUtils;
+import com.develop.backend.infrastructure.util.CacheUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

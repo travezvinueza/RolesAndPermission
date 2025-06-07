@@ -4,10 +4,9 @@ import com.develop.backend.application.dto.CategoryDto;
 import com.develop.backend.domain.entity.Category;
 import com.develop.backend.domain.repository.CategoryRepository;
 import com.develop.backend.domain.service.CategoryService;
-import com.develop.backend.insfraestructure.exception.CategoryNotFoundException;
+import com.develop.backend.infrastructure.exception.CategoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -43,8 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Page<CategoryDto> getAllCategories(String categoryName, int page, int size) {
-       Pageable pageable = PageRequest.of(page, size);
+    public Page<CategoryDto> getAllCategories(String categoryName, Pageable pageable) {
        Page<Category> categoryPage;
 
        if (categoryName != null && !categoryName.isBlank()) {
