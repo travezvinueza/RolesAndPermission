@@ -8,7 +8,7 @@ extend type Mutation {
     login(input: LoginReqDto!): JwtResponse
     register(input: RegisterReqDto!): UserDto
     refreshToken(input: RefreshTokenReqDto!): JwtResponse!
-    updateUser(id: ID!, input: RegisterReqDto): UserDto
+    updateUser(id: ID, input: UpdateInput): UserDto
     deleteUser(id: ID!): Boolean
 }
 
@@ -35,6 +35,16 @@ input Role {
     roleName: String
 }
 
+input UpdateInput {
+    id: ID
+    username: String
+    email: String
+    password: String
+    gender: Gender
+    imageProfile: String
+    roles: [Role]
+}
+
 type JwtResponse {
     accessToken: String
     refreshToken: String
@@ -56,7 +66,7 @@ type RoleDto {
 
 enum Gender {
     MASCULINE,
-    FEMENINE,
+    FEMININE,
     OTHER
 }
 

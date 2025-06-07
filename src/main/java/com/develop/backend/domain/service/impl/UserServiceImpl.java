@@ -5,12 +5,11 @@ import com.develop.backend.domain.entity.Role;
 import com.develop.backend.domain.entity.User;
 import com.develop.backend.domain.service.FileUploadService;
 import com.develop.backend.domain.service.UserService;
-import com.develop.backend.insfraestructure.exception.RoleNotFoundException;
-import com.develop.backend.insfraestructure.exception.UserNotFoundException;
+import com.develop.backend.infrastructure.exception.RoleNotFoundException;
+import com.develop.backend.infrastructure.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,8 +33,8 @@ public class UserServiceImpl implements UserService {
     private final FileUploadService fileUploadService;
 
     @Override
-    public UserDto updateUser(UserDto userDto, MultipartFile newImage) throws IOException {
-        User user = userRepository.findById(userDto.getId())
+    public UserDto updateUser(Long id, UserDto userDto, MultipartFile newImage) throws IOException {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userDto.getId()));
 
         user.setUsername(userDto.getUsername());
@@ -76,8 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserDto> getAllUsers(String username, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<UserDto> getAllUsers(String username, Pageable pageable) {
         Page<User> userPage;
         if (username != null && !username.isBlank()) {
             userPage = userRepository.findByUsernameContaining(username, pageable);
