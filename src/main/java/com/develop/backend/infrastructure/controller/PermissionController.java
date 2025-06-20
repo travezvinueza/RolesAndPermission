@@ -25,7 +25,7 @@ public class PermissionController {
         return ResponseEntity.status(201).body(createdPermission);
     }
 
-    @PostMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<PermissionDto> updatePermission(@RequestBody PermissionDto permissionDto) {
         PermissionDto updatedPermission = permissionService.updatePermission(permissionDto.getId(), permissionDto);
         return ResponseEntity.ok(updatedPermission);

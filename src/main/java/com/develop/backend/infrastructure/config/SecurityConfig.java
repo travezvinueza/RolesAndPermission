@@ -1,6 +1,7 @@
 package com.develop.backend.infrastructure.config;
 
 import com.develop.backend.domain.service.OurUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,10 +35,10 @@ public class SecurityConfig {
             "/v3/auth/**", "/upload/**", "/authenticate", "/paypal/**", "/v3/cache/**" };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(auth-> auth
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll()
                         .requestMatchers("/v3/category/**").hasAnyAuthority("READ_CATEGORY", "CREATE_CATEGORY", "UPDATE_CATEGORY", "DELETE_CATEGORY")
                         .requestMatchers("/v3/product/**").hasAnyAuthority("READ_PRODUCT", "CREATE_PRODUCT", "UPDATE_PRODUCT", "DELETE_PRODUCT")
@@ -46,7 +47,14 @@ public class SecurityConfig {
                         .requestMatchers("/v3/user/**").hasAnyAuthority("READ_USER", "UPDATE_USER", "DELETE_USER")
                         .requestMatchers("/v3/user/**", "/v3/role/**", "/v3/permission/**", "/v3/category/**", "/v3/product/**", "/v3/order/**", "/v3/order-detail/**").hasAnyAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
-                .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Acceso denegado: No tienes permisos de administrador\", \"status\": 403}");
+                        })
+                )
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }

@@ -20,8 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -36,33 +35,27 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public List<ProductDto> createProduct(List<ProductDto> productDto) {
-        List<Product> productsToSave = new ArrayList<>();
-        for (ProductDto dto : productDto) {
-            if (productRepository.findByProductName(dto.getProductName()).isPresent()) {
-                throw new ProductNotFoundException("Product with name '" + dto.getProductName() + "' already exists");
-            }
-            dto.setProductCode(generateProductCode());
-
-            Category category = null;
-            if (dto.getCategoryDto().getId() != null) {
-                category = categoryRepository.findById(dto.getCategoryDto().getId())
-                        .orElseThrow(() -> new CategoryNotFoundException("Category with id '" + dto.getCategoryDto().getId() + "' not encountered"));
-            } else if (dto.getCategoryDto().getCategoryName() != null) {
-                category = categoryRepository.findByCategoryName(dto.getCategoryDto().getCategoryName())
-                        .orElseThrow(() -> new CategoryNotFoundException("Category '" + dto.getCategoryDto().getCategoryName() + "' not foundtened"));
-            } else {
-                throw new CategoryNotFoundException("Category id or category name must be provided.");
-            }
-
-            Product product = Product.fromDto(dto);
-            product.setCategory(category);
-            productsToSave.add(product);
+    public ProductDto createProduct(ProductDto productDto) {
+        if (productDto.getCategoryDto() == null ||
+                productDto.getCategoryDto().getCategoryName() == null ||
+                productDto.getCategoryDto().getCategoryName().trim().isEmpty()) {
+            throw new CategoryNotFoundException("Category name must be provided");
         }
 
-        List<Product> savedProducts = productRepository.saveAll(productsToSave);
+        Category category = categoryRepository.findByCategoryName(productDto.getCategoryDto().getCategoryName().trim())
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+
+        if (productRepository.findByProductName(productDto.getProductName()).isPresent()) {
+            throw new ProductNotFoundException("Product with name '" + productDto.getProductName() + "' already exists");
+        }
+
+        Product product = Product.fromDto(productDto);
+        product.setProductCode(generateProductCode());
+        product.setCategory(category);
+        product = productRepository.save(product);
         cacheService.invalidateCache("product:all");
-        return savedProducts.stream().map(ProductDto::fromEntity).toList();
+
+        return ProductDto.fromEntity(product);
     }
 
     private String generateProductCode() {
@@ -71,10 +64,25 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto updateProduct(Long id, ProductDto productDto, MultipartFile newImage) throws IOException {
-        Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException("Product not found for update"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found for update"));
+
+        Optional<Product> existingProduct = productRepository.findByProductName(productDto.getProductName());
+        if (existingProduct.isPresent() && !existingProduct.get().getId().equals(id)) {
+            throw new ProductNotFoundException("Product with name '" + productDto.getProductName() + "' already exists");
+        }
+
+        if (productDto.getCategoryDto() == null || productDto.getCategoryDto().getId() == null) {
+            throw new CategoryNotFoundException("Category ID must be provided");
+        }
+
+        Category category = categoryRepository.findById(productDto.getCategoryDto().getId())
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found"));
+
         product.setProductName(productDto.getProductName());
         product.setPrice(productDto.getPrice());
         product.setStock(productDto.getStock());
+        product.setCategory(category);
 
         if (newImage != null && !newImage.isEmpty()) {
             String fileUrl = fileUploadService.uploadFile(newImage, "products");
@@ -82,20 +90,6 @@ public class ProductServiceImpl implements ProductService {
                 fileUploadService.deleteUpload(product.getImageProduct());
             }
             product.setImageProduct(fileUrl);
-        }
-
-        if (productDto.getCategoryDto() != null) {
-            Category category = null;
-            if (productDto.getCategoryDto().getId() != null) {
-                category = categoryRepository.findById(productDto.getCategoryDto().getId())
-                        .orElseThrow(() -> new CategoryNotFoundException("Category with id '" + productDto.getCategoryDto().getId() + "' not found"));
-            } else if (productDto.getCategoryDto().getCategoryName() != null) {
-                category = categoryRepository.findByCategoryName(productDto.getCategoryDto().getCategoryName())
-                        .orElseThrow(() -> new CategoryNotFoundException("Category '" + productDto.getCategoryDto().getCategoryName() + "' not found"));
-            } else {
-                throw new CategoryNotFoundException("Category id or category name must be provided.");
-            }
-            product.setCategory(category);
         }
 
         Product updatedProduct = productRepository.save(product);
@@ -128,7 +122,6 @@ public class ProductServiceImpl implements ProductService {
         }
         return productPage.map(ProductDto::fromEntity);
     }
-
 
     @Override
     public ProductDto getProductById(Long productId) {

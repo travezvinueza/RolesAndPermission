@@ -6,10 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 public interface ProductService {
-    List<ProductDto> createProduct(List<ProductDto> productDto);
+    ProductDto createProduct(ProductDto productDto);
     ProductDto updateProduct(Long id, ProductDto productDto, MultipartFile newImage) throws IOException;
     void deleteProduct(Long productId);
     Page<ProductDto> getAllProducts(String productName, Pageable pageable);
