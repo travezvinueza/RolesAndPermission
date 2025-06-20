@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @Validated
 @RestController
@@ -29,12 +28,13 @@ public class ProductController {
 
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<List<ProductDto>> createProducts(@RequestPart List<ProductDto> productDto,
-                                                           @RequestPart(required = false) MultipartFile imageProduct) throws IOException {
+    public ResponseEntity<ProductDto> createProducts(@RequestPart ProductDto productDto,
+                                                     @RequestPart(required = false) MultipartFile imageProduct) throws IOException {
         if (imageProduct != null && !imageProduct.isEmpty()) {
-            String fileUrl = fileUploadService.uploadFile(imageProduct, "products");
-            productDto.forEach(product -> product.setImageProduct(fileUrl));
+            String imageUrl = fileUploadService.uploadFile(imageProduct, "products");
+            productDto.setImageProduct(imageUrl);
         }
+
         return new ResponseEntity<>(productService.createProduct(productDto), HttpStatus.CREATED);
     }
 

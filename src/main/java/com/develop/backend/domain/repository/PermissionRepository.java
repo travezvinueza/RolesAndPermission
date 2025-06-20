@@ -11,5 +11,6 @@ import java.util.Optional;
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, Long> {
     Optional<Permission> findByPermissionName(String permissionName);
+
     Page<Permission> findByPermissionNameContainingIgnoreCase(String permissionName, Pageable pageable);
 }

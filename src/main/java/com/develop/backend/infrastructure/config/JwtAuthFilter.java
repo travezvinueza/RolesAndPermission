@@ -41,10 +41,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType(CONTENT_TYPE);
             response.getWriter().write("{\"message\": \"El token ha expirado\", \"status\": 401}");
-        } catch (AccessDeniedException e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType(CONTENT_TYPE);
-            response.getWriter().write("{\"message\": \"Acceso denegado: No tienes permisos de administrador\", \"status\": 403}");
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType(CONTENT_TYPE);
